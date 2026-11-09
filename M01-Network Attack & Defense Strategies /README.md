@@ -630,7 +630,6 @@ git clone https://github.com/<your-username>/<repo-name>.git
 <p align="center">
   <a href="mailto:your.email@gmail.com"><img src="https://img.shields.io/badge/Email-your.email%40gmail.com-2563eb?style=flat-square&logo=gmail&logoColor=white" alt="Email"></a>
   <a href="https://www.linkedin.com/in/your-linkedin"><img src="https://img.shields.io/badge/LinkedIn-Your_Name-eab308?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-  <a href="https://github.com/your-github"><img src="https://img.shields.io/badge/GitHub-your--github-111827?style=flat-square&logo=github&logoColor=white" alt="GitHub"></a>
 </p>
 
 ---
@@ -641,6 +640,6 @@ This project was built for **educational purposes only**, inside a closed, dispo
 
 <h3 align="center">⭐ If you found this helpful, please give it a star!</h3>
 
-<p align="center"><b>Made with 💛 by [Your Name]</b></p>
+<p align="center"><b>Made with 💛 by [Sanawar Imran]</b></p>
 
 <p align="center"><i>Last Updated: November 2026</i></p>
