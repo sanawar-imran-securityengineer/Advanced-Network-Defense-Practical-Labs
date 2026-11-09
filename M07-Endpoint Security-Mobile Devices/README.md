@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📱 MODULE 7 — Mobile Device Security Lab
+# 📱 Mobile Device Security Lab
 
 **A complete, hands-on, screenshot-driven walkthrough — from standalone mobile malware detection to centralized enterprise management**
 
