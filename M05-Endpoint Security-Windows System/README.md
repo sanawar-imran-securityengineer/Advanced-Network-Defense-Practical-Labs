@@ -1,7 +1,3 @@
-<div align="center">
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f2027,50:203a43,100:2c5364&height=220&section=header&text=Endpoint%20Security&fontSize=58&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=Windows%20Systems%20%E2%80%A2%20AD%20RBAC%20%E2%80%A2%20Wazuh%20SIEM%20%E2%80%A2%20MITRE%20ATT%26CK&descSize=18&descAlignY=58" width="100%"/>
-
 # 🛡️ MODULE 5 — Endpoint Security Lab
 
 **A complete, hands-on, screenshot-driven walkthrough — from VM setup to automated active response**
@@ -67,1412 +63,1858 @@ This module demonstrates a **full Windows endpoint security lifecycle** in a vir
 | ⚔️ Offensive | Nmap, CrackMapExec, Hydra, Impacket |
 
 
+
 ## 🗺️ Phase Map
 
 | # | Phase | Steps |
 | :-: | :--- | :-: |
-| 1 | 🖥️ Phase 1 — VM Setup & Domain Join | 1–20 |
-| 2 | 🏢 Phase 2 — Active Directory & RBAC Design | 21–42 |
-| 3 | 📁 Phase 3 — Secure File Sharing (FinanceData) | 43–80 |
-| 4 | 📏 Phase 4 — Microsoft Security Compliance Toolkit | 81–108 |
-| 5 | 🔄 Phase 5 — Patch Management with BatchPatch | 109–126 |
-| 6 | 🛡️ Phase 6 — Windows Hardening | 127–137 |
-| 7 | 📡 Phase 7 — Wazuh SIEM Deployment & Agents | 138–164 |
-| 8 | 🔍 Phase 8 — Sysmon & Log Collection | 165–182 |
-| 9 | 🎯 Phase 9 — Custom Detection Rules & MITRE ATT&CK | 183–189 |
-| 10 | ⚔️ Phase 10 — Attack Simulation from Kali | 190–214 |
-| 11 | 🚨 Phase 11 — Active Response (Detection → Prevention) | 215–218 |
+| 1 | [🖥️ Phase 1 — VM Setup & Domain Join](#phase1) | 1–20 |
+| 2 | [🏢 Phase 2 — Active Directory & RBAC Design](#phase2) | 21–42 |
+| 3 | [📁 Phase 3 — Secure File Sharing (FinanceData)](#phase3) | 43–80 |
+| 4 | [📏 Phase 4 — Microsoft Security Compliance Toolkit](#phase4) | 81–108 |
+| 5 | [🔄 Phase 5 — Patch Management with BatchPatch](#phase5) | 109–126 |
+| 6 | [🛡️ Phase 6 — Windows Hardening](#phase6) | 127–137 |
+| 7 | [📡 Phase 7 — Wazuh SIEM Deployment & Agents](#phase7) | 138–164 |
+| 8 | [🔍 Phase 8 — Sysmon & Log Collection](#phase8) | 165–182 |
+| 9 | [🎯 Phase 9 — Custom Detection Rules & MITRE ATT&CK](#phase9) | 183–189 |
+| 10 | [⚔️ Phase 10 — Attack Simulation from Kali](#phase10) | 190–214 |
+| 11 | [🚨 Phase 11 — Active Response (Detection → Prevention)](#phase11) | 215–218 |
 
 ---
 
 ## 🧪 Lab Walkthrough
 
-> 👇 Click a phase to expand it.
+> Every step has its screenshot and full documentation below.
 
-<details>
-<summary><b>🖥️ Phase 1 — VM Setup & Domain Join</b> &nbsp;·&nbsp; Steps 1–20</summary>
+<a id="phase1"></a>
 
-<br>
+## 🖥️ Phase 1 — VM Setup & Domain Join
 
-#### 🔹 1. SRV01 Virtual Machine Ready
+<sub>Steps 1–20</sub>
 
-<p align="center"><img src="images/ai.png" alt="SRV01 Virtual Machine Ready" width="80%"/></p>
+### 🔹 1. SRV01 Virtual Machine Ready
 
-> Windows Server 2019 VM in VMware (2 GB RAM, 2 CPU, 40 GB NVMe, VMnet1). Acts as Patch Management + Secure File Server.
+- The SRV01 virtual machine (Windows Server 2019) is created in VMware and shown in its summary page.
+- Its hardware is visible here: 2 GB RAM, 2 processors, a 40 GB NVMe disk and the VMnet1 network adapter.
+- This machine becomes the Patch Management server and the Secure File Server for the lab.
 
-#### 🔹 2. Open Network & Internet Settings
+### 🔹 2. Open Network & Internet Settings
 
-<p align="center"><img src="images/screenshot2.png" alt="Open Network & Internet Settings" width="80%"/></p>
+<p align="center"><img src="images/screenshot2.png" alt="Open Network & Internet Settings" width="85%"/></p>
 
-> Right-click the network icon on SRV01 to start assigning a fixed IP.
+- Right-click the network icon in the taskbar and choose Open Network & Internet Settings on SRV01.
+- This is the entry point for assigning a fixed IP address to the server.
+- A static IP keeps SRV01 reachable at the same address for every other machine in the domain.
 
-#### 🔹 3. Change Adapter Options
+### 🔹 3. Change Adapter Options
 
-<p align="center"><img src="images/screenshot3.png" alt="Change Adapter Options" width="80%"/></p>
+<p align="center"><img src="images/screenshot3.png" alt="Change Adapter Options" width="85%"/></p>
 
-> Open Network Connections and pick the correct Ethernet adapter.
+- From the Network & Internet settings page, click Change Adapter Options.
+- The Network Connections window opens and lists the available Ethernet adapters.
+- Selecting the correct adapter is required before its IPv4 properties can be edited.
 
-#### 🔹 4. Ethernet Adapter Properties
+### 🔹 4. Ethernet Adapter Properties
 
-<p align="center"><img src="images/screenshot4.png" alt="Ethernet Adapter Properties" width="80%"/></p>
+<p align="center"><img src="images/screenshot4.png" alt="Ethernet Adapter Properties" width="85%"/></p>
 
-> Open adapter Properties to reach the TCP/IPv4 protocol.
+- Right-click the Ethernet adapter and open its Properties dialog.
+- The list of protocols and services bound to the adapter is displayed.
+- Internet Protocol Version 4 (TCP/IPv4) is selected from this list in the next step.
 
-#### 🔹 5. Select IPv4 Properties
+### 🔹 5. Select IPv4 Properties
 
-<p align="center"><img src="images/screenshot5.png" alt="Select IPv4 Properties" width="80%"/></p>
+<p align="center"><img src="images/screenshot5.png" alt="Select IPv4 Properties" width="85%"/></p>
 
-> Switch from DHCP to "Use the following IP address".
+- Double-click Internet Protocol Version 4 (TCP/IPv4) to open its configuration window.
+- Choose the option Use the following IP address to switch from DHCP to manual settings.
+- This is where the static IP, subnet mask, gateway and DNS server are entered.
 
-#### 🔹 6. Static IP Configuration for SRV01
+### 🔹 6. Static IP Configuration for SRV01
 
-<p align="center"><img src="images/screenshot6.png" alt="Static IP Configuration for SRV01" width="80%"/></p>
+<p align="center"><img src="images/screenshot6.png" alt="Static IP Configuration for SRV01" width="85%"/></p>
 
-> IP `192.168.10.25`, mask `255.255.255.0`, gateway `192.168.10.1`, DNS `192.168.10.10` (DC01) — required to join `corp.local`.
+- The values entered are IP `192.168.10.25`, subnet mask `255.255.255.0` and gateway `192.168.10.1`.
+- The preferred DNS server is set to `192.168.10.10`, which is DC01, the domain controller.
+- Pointing DNS to DC01 is essential so that SRV01 can find and join the corp.local domain.
 
-#### 🔹 7. Verify IP with ipconfig /all
+### 🔹 7. Verify IP with ipconfig /all
 
-<p align="center"><img src="images/screenshot7.png" alt="Verify IP with ipconfig /all" width="80%"/></p>
+<p align="center"><img src="images/screenshot7.png" alt="Verify IP with ipconfig /all" width="85%"/></p>
 
-> Confirms the static address is applied on SRV01.
+- Command Prompt is opened and `ipconfig /all` is executed on SRV01.
+- The output confirms that the adapter now holds the static address 192.168.10.25.
+- This proves the manual network configuration was applied correctly.
 
-#### 🔹 8. Ping Test to DC01
+### 🔹 8. Ping Test to DC01
 
-<p align="center"><img src="images/screenshot8.png" alt="Ping Test to DC01" width="80%"/></p>
+<p align="center"><img src="images/screenshot8.png" alt="Ping Test to DC01" width="85%"/></p>
 
-> `ping 192.168.10.10` succeeds — connectivity to the domain controller verified.
+- The command `ping 192.168.10.10` is run from SRV01 to test connectivity.
+- Successful replies show that SRV01 can reach the domain controller on the network.
+- Connectivity to DC01 must work before attempting to join the domain.
 
-#### 🔹 9. Open System Information
+### 🔹 9. Open System Information
 
-<p align="center"><img src="images/screenshot9.png" alt="Open System Information" width="80%"/></p>
+<p align="center"><img src="images/screenshot9.png" alt="Open System Information" width="85%"/></p>
 
-> Settings → System → About to rename the host to SRV01.
+- Go to Settings > System > About to view the current device name and system details.
+- The default hostname is still shown, so it must be changed to SRV01.
+- The Advanced system settings link on this page leads to the rename and domain options.
 
-#### 🔹 10. Advanced System Settings
+### 🔹 10. Advanced System Settings
 
-<p align="center"><img src="images/screenshot10.png" alt="Advanced System Settings" width="80%"/></p>
+<p align="center"><img src="images/screenshot10.png" alt="Advanced System Settings" width="85%"/></p>
 
-> Computer Name tab → Change to rename and join the domain.
+- The System Properties window opens from the Advanced system settings link.
+- Switch to the Computer Name tab, which shows the current computer name and domain or workgroup.
+- Click the Change button to rename the machine and join it to the domain.
 
-#### 🔹 11. Computer Name / Domain Changes
+### 🔹 11. Computer Name / Domain Changes
 
-<p align="center"><img src="images/screenshot11.png" alt="Computer Name / Domain Changes" width="80%"/></p>
+<p align="center"><img src="images/screenshot11.png" alt="Computer Name / Domain Changes" width="85%"/></p>
 
-> Computer name set to SRV01 before switching to domain membership.
+- The Computer Name/Domain Changes dialog is displayed.
+- The computer name is typed as SRV01 in the upper box.
+- The Member of section is used next to switch the machine from a workgroup to the domain.
 
-#### 🔹 12. Join corp.local Domain
+### 🔹 12. Join corp.local Domain
 
-<p align="center"><img src="images/screenshot12.png" alt="Join corp.local Domain" width="80%"/></p>
+<p align="center"><img src="images/screenshot12.png" alt="Join corp.local Domain" width="85%"/></p>
 
-> Domain admin credentials used; VM restarted to apply name + domain.
+- SRV01 is set as the computer name and Domain is selected with corp.local entered.
+- Domain administrator credentials are requested to complete the join.
+- After the success message, the VM is restarted so the new name and domain membership take effect.
 
-#### 🔹 13. Clone CL01 to Create CL02
+### 🔹 13. Clone CL01 to Create CL02
 
-<p align="center"><img src="images/screenshot13.png" alt="Clone CL01 to Create CL02" width="80%"/></p>
+<p align="center"><img src="images/screenshot13.png" alt="Clone CL01 to Create CL02" width="85%"/></p>
 
-> VMware Manage → Clone to create the second client (unauthorized workstation for RBAC tests).
+- In VMware, right-click the Windows 10 Pro machine (CL01) and go to Manage > Clone.
+- Cloning is the fastest way to create the second client machine with the same software installed.
+- CL02 will act as the unauthorized user workstation in the RBAC tests.
 
-#### 🔹 14. Create a Full Clone
+### 🔹 14. Create a Full Clone
 
-<p align="center"><img src="images/screenshot14.png" alt="Create a Full Clone" width="80%"/></p>
+<p align="center"><img src="images/screenshot14.png" alt="Create a Full Clone" width="85%"/></p>
 
-> Full clone chosen so CL02 is independent of CL01.
+- The Clone Virtual Machine wizard asks for the clone type.
+- Create a full clone is selected so CL02 is a completely independent copy of CL01.
+- A full clone does not depend on the original VM, which keeps the lab stable.
 
-#### 🔹 15. Name the Clone CL02
+### 🔹 15. Name the Clone CL02
 
-<p align="center"><img src="images/screenshot15.png" alt="Name the Clone CL02" width="80%"/></p>
+<p align="center"><img src="images/screenshot15.png" alt="Name the Clone CL02" width="85%"/></p>
 
-> Clone named CL02 and added to the VMware library.
+- The new virtual machine is named CL02 and its storage location is chosen.
+- Finishing the wizard creates the clone and adds it to the VMware library.
+- CL02 is now ready to be powered on and configured with its own IP address.
 
-#### 🔹 16. Static IP Configuration for CL02
+### 🔹 16. Static IP Configuration for CL02
 
-<p align="center"><img src="images/screenshot16.png" alt="Static IP Configuration for CL02" width="80%"/></p>
+<p align="center"><img src="images/screenshot16.png" alt="Static IP Configuration for CL02" width="85%"/></p>
 
-> Unique IP in `192.168.10.x`, DNS `192.168.10.10` to avoid conflicts.
+- The IPv4 properties of CL02 are opened and a manual address in the 192.168.10.x range is entered.
+- The DNS server is set to 192.168.10.10 so the client can locate the domain controller.
+- A unique IP avoids any conflict with CL01 because the machine was cloned.
 
-#### 🔹 17. Connectivity Test from CL02
+### 🔹 17. Connectivity Test from CL02
 
-<p align="center"><img src="images/screenshot17.png" alt="Connectivity Test from CL02" width="80%"/></p>
+<p align="center"><img src="images/screenshot17.png" alt="Connectivity Test from CL02" width="85%"/></p>
 
-> Ping to DC01 succeeds — network verified before domain join.
+- From Command Prompt on CL02, `ping 192.168.10.10` is executed.
+- Replies from DC01 confirm that CL02 is correctly connected to the lab network.
+- With the network verified, the domain join can proceed.
 
-#### 🔹 18. Open Advanced System Settings on CL02
+### 🔹 18. Open Advanced System Settings on CL02
 
-<p align="center"><img src="images/screenshot18.png" alt="Open Advanced System Settings on CL02" width="80%"/></p>
+<p align="center"><img src="images/screenshot18.png" alt="Open Advanced System Settings on CL02" width="85%"/></p>
 
-> System Properties → Change to rename and join the domain.
+- Settings > About > Advanced system settings is opened on CL02.
+- The System Properties window shows the computer name tab for this cloned machine.
+- The Change button is used to rename the PC and join it to the domain.
 
-#### 🔹 19. Join CL02 to corp.local
+### 🔹 19. Join CL02 to corp.local
 
-<p align="center"><img src="images/screenshot19.png" alt="Join CL02 to corp.local" width="80%"/></p>
+<p align="center"><img src="images/screenshot19.png" alt="Join CL02 to corp.local" width="85%"/></p>
 
-> Welcome message confirms CL02 joined the domain.
+- The Member of Domain option is selected and corp.local is typed in.
+- Credentials of a domain administrator are used to authorize the join.
+- A welcome message confirms CL02 is now part of the corp.local domain.
 
-#### 🔹 20. Login as CORP\Administrator
+### 🔹 20. Login as CORP\Administrator
 
-<p align="center"><img src="images/screenshot20.png" alt="Login as CORP\Administrator" width="80%"/></p>
+<p align="center"><img src="images/screenshot20.png" alt="Login as CORP\Administrator" width="85%"/></p>
 
-> Domain authentication verified on CL02.
+- After the restart, CL02 shows the Windows login screen.
+- The domain account CORP\Administrator is used to sign in.
+- A successful login verifies that domain authentication works on CL02.
 
-</details>
+---
 
-<details>
-<summary><b>🏢 Phase 2 — Active Directory & RBAC Design</b> &nbsp;·&nbsp; Steps 21–42</summary>
+<a id="phase2"></a>
 
-<br>
+## 🏢 Phase 2 — Active Directory & RBAC Design
 
-#### 🔹 21. Open Active Directory Users and Computers
+<sub>Steps 21–42</sub>
 
-<p align="center"><img src="images/screenshot21.png" alt="Open Active Directory Users and Computers" width="80%"/></p>
+### 🔹 21. Open Active Directory Users and Computers
 
-> On DC01 run `dsa.msc` — all OUs, users and groups are created here.
+<p align="center"><img src="images/screenshot21.png" alt="Open Active Directory Users and Computers" width="85%"/></p>
 
-#### 🔹 22. Create the Finance OU
+- On DC01, press Win+R and run `dsa.msc` to open Active Directory Users and Computers.
+- The console shows the corp.local domain tree with its default containers and OUs.
+- All Module 5 users, groups and organizational units are created from here.
 
-<p align="center"><img src="images/screenshot22.png" alt="Create the Finance OU" width="80%"/></p>
+### 🔹 22. Create the Finance OU
 
-> New → Organizational Unit named **Finance**.
+<p align="center"><img src="images/screenshot22.png" alt="Create the Finance OU" width="85%"/></p>
 
-#### 🔹 23. Finance OU Created
+- Right-click corp.local and choose New > Organizational Unit.
+- The new OU is named Finance.
+- OUs allow administrators to organize accounts and apply policies per department.
 
-<p align="center"><img src="images/screenshot23.png" alt="Finance OU Created" width="80%"/></p>
+### 🔹 23. Finance OU Created
 
-> OU appears under `corp.local` for per-department management.
+<p align="center"><img src="images/screenshot23.png" alt="Finance OU Created" width="85%"/></p>
 
-#### 🔹 24. Create the FinanceUsers Sub-OU
+- The Finance organizational unit now appears under corp.local.
+- It will contain the finance users and the security group used for RBAC.
+- Keeping finance accounts in their own OU makes permission management cleaner.
 
-<p align="center"><img src="images/screenshot24.png" alt="Create the FinanceUsers Sub-OU" width="80%"/></p>
+### 🔹 24. Create the FinanceUsers Sub-OU
 
-> Holds authorized finance accounts (bob, john).
+<p align="center"><img src="images/screenshot24.png" alt="Create the FinanceUsers Sub-OU" width="85%"/></p>
 
-#### 🔹 25. OU Structure Verified
+- Right-click the Finance OU and select New > Organizational Unit.
+- The sub-OU is named FinanceUsers.
+- This OU will hold the authorized finance user accounts such as bob and john.
 
-<p align="center"><img src="images/screenshot25.png" alt="OU Structure Verified" width="80%"/></p>
+### 🔹 25. OU Structure Verified
 
-> Finance → FinanceUsers hierarchy matches the design.
+<p align="center"><img src="images/screenshot25.png" alt="OU Structure Verified" width="85%"/></p>
 
-#### 🔹 26. Create User bob
+- The console now shows Finance with its FinanceUsers child OU.
+- The hierarchy matches the design planned for this lab.
+- The next step is to create the user accounts inside FinanceUsers.
 
-<p align="center"><img src="images/screenshot26.png" alt="Create User bob" width="80%"/></p>
+### 🔹 26. Create User bob
 
-> Authorized finance user in FinanceUsers OU.
+<p align="center"><img src="images/screenshot26.png" alt="Create User bob" width="85%"/></p>
 
-#### 🔹 27. Set bob's Password
+- Right-click the FinanceUsers OU and choose New > User.
+- The first name and the logon name are both entered as bob.
+- bob is one of the authorized finance users who will access the protected share.
 
-<p align="center"><img src="images/screenshot27.png" alt="Set bob's Password" width="80%"/></p>
+### 🔹 27. Set bob's Password
 
-> "Password never expires" enabled for stable lab testing.
+<p align="center"><img src="images/screenshot27.png" alt="Set bob's Password" width="85%"/></p>
 
-#### 🔹 28. bob Account Created
+- The password step of the New Object wizard is displayed.
+- User must change password at next logon is unchecked and Password never expires is checked.
+- These settings keep the lab account stable during testing.
 
-<p align="center"><img src="images/screenshot28.png" alt="bob Account Created" width="80%"/></p>
+### 🔹 28. bob Account Created
 
-> Account summary confirmed; ready for FinanceData group.
+<p align="center"><img src="images/screenshot28.png" alt="bob Account Created" width="85%"/></p>
 
-#### 🔹 29. Create User john
+- The final confirmation page shows the summary of the new bob account.
+- Clicking Finish creates the user in the FinanceUsers OU.
+- bob is now ready to be added to the FinanceData security group.
 
-<p align="center"><img src="images/screenshot29.png" alt="Create User john" width="80%"/></p>
+### 🔹 29. Create User john
 
-> Second authorized finance user.
+<p align="center"><img src="images/screenshot29.png" alt="Create User john" width="85%"/></p>
 
-#### 🔹 30. Set john's Password
+- A second user, john, is created in the FinanceUsers OU using the same wizard.
+- The first name and user logon name are both set to john.
+- john is the second authorized finance user in the RBAC design.
 
-<p align="center"><img src="images/screenshot30.png" alt="Set john's Password" width="80%"/></p>
+### 🔹 30. Set john's Password
 
-> Same password options as bob.
+<p align="center"><img src="images/screenshot30.png" alt="Set john's Password" width="85%"/></p>
 
-#### 🔹 31. Create User martin (Unauthorized)
+- The password options for john are configured the same way as bob.
+- The must-change option is cleared and Password never expires is enabled.
+- Finish creates the account and john appears in the OU list.
 
-<p align="center"><img src="images/screenshot31.png" alt="Create User martin (Unauthorized)" width="80%"/></p>
+### 🔹 31. Create User martin (Unauthorized)
 
-> Deliberately **not** in FinanceData — represents the unauthorized user.
+<p align="center"><img src="images/screenshot31.png" alt="Create User martin (Unauthorized)" width="85%"/></p>
 
-#### 🔹 32. Create User alice
+- The user martin is created and given a different password from the finance users.
+- martin is deliberately not placed in the FinanceData group.
+- He represents the unauthorized user who must be denied access to the finance share.
 
-<p align="center"><img src="images/screenshot32.png" alt="Create User alice" width="80%"/></p>
+### 🔹 32. Create User alice
 
-> General employee with no finance privileges.
+<p align="center"><img src="images/screenshot32.png" alt="Create User alice" width="85%"/></p>
 
-#### 🔹 33. Set alice's Password
+- A general client user named alice is created in the IT or General OU.
+- The first name and logon name are entered as alice.
+- alice represents a normal employee without any special finance privileges.
 
-<p align="center"><img src="images/screenshot33.png" alt="Set alice's Password" width="80%"/></p>
+### 🔹 33. Set alice's Password
 
-> Consistent account options across all test users.
+<p align="center"><img src="images/screenshot33.png" alt="Set alice's Password" width="85%"/></p>
 
-#### 🔹 34. alice Account Created
+- The password for alice is entered on the password page of the wizard.
+- The same account options are applied as for the other users.
+- This keeps all four test accounts consistent and easy to use.
 
-<p align="center"><img src="images/screenshot34.png" alt="alice Account Created" width="80%"/></p>
+### 🔹 34. alice Account Created
 
-> All four lab users (bob, john, martin, alice) now exist.
+<p align="center"><img src="images/screenshot34.png" alt="alice Account Created" width="85%"/></p>
 
-#### 🔹 35. Create the FinanceData Security Group
+- The wizard summary confirms the alice account details.
+- Clicking Finish adds alice to Active Directory.
+- All four lab users (bob, john, martin, alice) now exist in the domain.
 
-<p align="center"><img src="images/screenshot35.png" alt="Create the FinanceData Security Group" width="80%"/></p>
+### 🔹 35. Create the FinanceData Security Group
 
-> Global / Security group — permissions go to the group, not individuals (core of RBAC).
+<p align="center"><img src="images/screenshot35.png" alt="Create the FinanceData Security Group" width="85%"/></p>
 
-#### 🔹 36. FinanceData Group Created
+- Right-click the Finance OU and choose New > Group.
+- The group is named FinanceData with Global scope and Security type.
+- This group is the core of the RBAC model because permissions will be given to the group, not to individuals.
 
-<p align="center"><img src="images/screenshot36.png" alt="FinanceData Group Created" width="80%"/></p>
+### 🔹 36. FinanceData Group Created
 
-> Group appears in the Finance OU, currently empty.
+<p align="center"><img src="images/screenshot36.png" alt="FinanceData Group Created" width="85%"/></p>
 
-#### 🔹 37. Open Group Members Tab
+- After clicking OK, the FinanceData group appears inside the Finance OU.
+- It is currently empty and has no members yet.
+- Next, the authorized users are added to it.
 
-<p align="center"><img src="images/screenshot37.png" alt="Open Group Members Tab" width="80%"/></p>
+### 🔹 37. Open Group Members Tab
 
-> Add only authorized finance employees.
+<p align="center"><img src="images/screenshot37.png" alt="Open Group Members Tab" width="85%"/></p>
 
-#### 🔹 38. Add bob to the Group
+- Double-click the FinanceData group and open the Members tab.
+- Click Add to select the users who should belong to this group.
+- Only authorized finance employees should ever be members.
 
-<p align="center"><img src="images/screenshot38.png" alt="Add bob to the Group" width="80%"/></p>
+### 🔹 38. Add bob to the Group
 
-> Resolved via Check Names and added.
+<p align="center"><img src="images/screenshot38.png" alt="Add bob to the Group" width="85%"/></p>
 
-#### 🔹 39. Add john to the Group
+- bob is typed into the Select Users dialog and Check Names is used.
+- The name resolves to the correct domain account.
+- Clicking OK adds bob as a member of FinanceData.
 
-<p align="center"><img src="images/screenshot39.png" alt="Add john to the Group" width="80%"/></p>
+### 🔹 39. Add john to the Group
 
-> Added the same way.
+<p align="center"><img src="images/screenshot39.png" alt="Add john to the Group" width="85%"/></p>
 
-#### 🔹 40. Group Membership Confirmed
+- The same process is repeated to add john to the group.
+- Check Names confirms that the account exists in corp.local.
+- Both authorized users are now selected for membership.
 
-<p align="center"><img src="images/screenshot40.png" alt="Group Membership Confirmed" width="80%"/></p>
+### 🔹 40. Group Membership Confirmed
 
-> Members: bob and john. martin and alice intentionally excluded.
+<p align="center"><img src="images/screenshot40.png" alt="Group Membership Confirmed" width="85%"/></p>
 
-#### 🔹 41. Move CL02 to the Workstations OU
+- The Members tab lists bob and john.
+- Clicking Apply and OK saves the membership changes.
+- martin and alice are intentionally not part of this group.
 
-<p align="center"><img src="images/screenshot41.png" alt="Move CL02 to the Workstations OU" width="80%"/></p>
+### 🔹 41. Move CL02 to the Workstations OU
 
-> Allows workstation policies to apply to CL02.
+<p align="center"><img src="images/screenshot41.png" alt="Move CL02 to the Workstations OU" width="85%"/></p>
 
-#### 🔹 42. CL02 in Workstations OU
+- In Active Directory Users and Computers, right-click the CL02 computer object and choose Move.
+- The Workstations OU is selected as the destination.
+- Placing CL02 in the proper OU allows workstation policies to be applied to it.
 
-<p align="center"><img src="images/screenshot42.png" alt="CL02 in Workstations OU" width="80%"/></p>
+### 🔹 42. CL02 in Workstations OU
 
-> Move confirmed — identity structure is ready.
+<p align="center"><img src="images/screenshot42.png" alt="CL02 in Workstations OU" width="85%"/></p>
 
-</details>
+- The CL02 computer account is now listed inside the Workstations OU.
+- This confirms the move was completed successfully.
+- Phase 2 is finished and the identity structure is ready for the file-share setup.
 
-<details>
-<summary><b>📁 Phase 3 — Secure File Sharing (FinanceData)</b> &nbsp;·&nbsp; Steps 43–80</summary>
+---
 
-<br>
+<a id="phase3"></a>
 
-#### 🔹 43. Open File Explorer on SRV01
+## 📁 Phase 3 — Secure File Sharing (FinanceData)
 
-<p align="center"><img src="images/screenshot43.png" alt="Open File Explorer on SRV01" width="80%"/></p>
+<sub>Steps 43–80</sub>
 
-> Start preparing the shared folder.
+### 🔹 43. Open File Explorer on SRV01
 
-#### 🔹 44. Choose the Drive
+<p align="center"><img src="images/screenshot43.png" alt="Open File Explorer on SRV01" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot44.png" alt="Choose the Drive" width="80%"/></p>
+- File Explorer is opened on SRV01 to prepare the shared folder.
+- The C: or D: drive is selected as the location for the share.
+- This begins the secure file sharing configuration.
 
-> Select the drive hosting the Shares folder.
+### 🔹 44. Choose the Drive
 
-#### 🔹 45. Create the Shares Folder
+<p align="center"><img src="images/screenshot44.png" alt="Choose the Drive" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot45.png" alt="Create the Shares Folder" width="80%"/></p>
+- The local drive where the Shares folder will be created is opened.
+- The existing folders on the drive are visible.
+- A dedicated Shares folder keeps all shared data in one controlled place.
 
-> Parent folder for all controlled shares.
+### 🔹 45. Create the Shares Folder
 
-#### 🔹 46. Create the FinanceData Folder
+<p align="center"><img src="images/screenshot45.png" alt="Create the Shares Folder" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot46.png" alt="Create the FinanceData Folder" width="80%"/></p>
+- Right-click inside the drive and choose New > Folder.
+- The new folder is named Shares.
+- It will be the parent folder for the FinanceData share.
 
-> Will hold confidential finance files.
+### 🔹 46. Create the FinanceData Folder
 
-#### 🔹 47. Final Folder Path
+<p align="center"><img src="images/screenshot46.png" alt="Create the FinanceData Folder" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot47.png" alt="Final Folder Path" width="80%"/></p>
+- Inside Shares, a new folder named FinanceData is created.
+- This folder will hold the confidential finance files.
+- Access to it will be restricted using share and NTFS permissions.
 
-> `C:\Shares\FinanceData`
+### 🔹 47. Final Folder Path
 
-#### 🔹 48. Open Folder Properties
+<p align="center"><img src="images/screenshot47.png" alt="Final Folder Path" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot48.png" alt="Open Folder Properties" width="80%"/></p>
+- The Explorer address bar shows the full path `C:\Shares\FinanceData`.
+- This is the exact location that will be shared on the network.
+- The folder is empty for now and ready to be secured.
 
-> Sharing tab → Advanced Sharing.
+### 🔹 48. Open Folder Properties
 
-#### 🔹 49. Advanced Sharing Dialog
+<p align="center"><img src="images/screenshot48.png" alt="Open Folder Properties" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot49.png" alt="Advanced Sharing Dialog" width="80%"/></p>
+- Right-click the FinanceData folder and choose Properties.
+- The Sharing tab is opened and Advanced Sharing is selected.
+- This is where network share settings are controlled.
 
-> Folder is not yet shared until enabled.
+### 🔹 49. Advanced Sharing Dialog
 
-#### 🔹 50. Enable Share This Folder
+<p align="center"><img src="images/screenshot49.png" alt="Advanced Sharing Dialog" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot50.png" alt="Enable Share This Folder" width="80%"/></p>
+- The Advanced Sharing window opens.
+- It contains the option to share the folder and set permissions and caching.
+- The folder is not shared yet until the checkbox is enabled.
 
-> Share name set to **FinanceData**.
+### 🔹 50. Enable Share This Folder
 
-#### 🔹 51. Open Share Permissions
+<p align="center"><img src="images/screenshot50.png" alt="Enable Share This Folder" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot51.png" alt="Open Share Permissions" width="80%"/></p>
+- Share this folder is checked in the Advanced Sharing window.
+- The share name is set to FinanceData.
+- This publishes the folder to the network under the name FinanceData.
 
-> Default `Everyone` access is too open for finance data.
+### 🔹 51. Open Share Permissions
 
-#### 🔹 52. Remove Everyone
+<p align="center"><img src="images/screenshot51.png" alt="Open Share Permissions" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot52.png" alt="Remove Everyone" width="80%"/></p>
+- Click the Permissions button to view the share-level permissions.
+- By default, the group Everyone has access to the share.
+- This default is too open for confidential finance data.
 
-> Enforces least privilege.
+### 🔹 52. Remove Everyone
 
-#### 🔹 53. Add the FinanceData Group
+<p align="center"><img src="images/screenshot52.png" alt="Remove Everyone" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot53.png" alt="Add the FinanceData Group" width="80%"/></p>
+- The Everyone entry is selected and removed from the list.
+- Removing it blocks access for all unauthorized accounts.
+- This follows the principle of least privilege.
 
-> Group resolved from Active Directory.
+### 🔹 53. Add the FinanceData Group
 
-#### 🔹 54. Grant Full Control to the Group
+<p align="center"><img src="images/screenshot53.png" alt="Add the FinanceData Group" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot54.png" alt="Grant Full Control to the Group" width="80%"/></p>
+- Click Add, type FinanceData, use Check Names and press OK.
+- The security group is resolved from Active Directory.
+- Permissions will now be given only to this group.
 
-> Share-level permission; NTFS applies the stricter rules.
+### 🔹 54. Grant Full Control to the Group
 
-#### 🔹 55. Open Caching Settings
+<p align="center"><img src="images/screenshot54.png" alt="Grant Full Control to the Group" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot55.png" alt="Open Caching Settings" width="80%"/></p>
+- The FinanceData group is selected and Full Control is allowed at the share level.
+- Apply and OK are clicked to save the share permissions.
+- Real file access is still limited later by the stricter NTFS rules.
 
-> Offline settings window.
+### 🔹 55. Open Caching Settings
 
-#### 🔹 56. Caching Disabled and Applied
+<p align="center"><img src="images/screenshot55.png" alt="Open Caching Settings" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot56.png" alt="Caching Disabled and Applied" width="80%"/></p>
+- Back in Advanced Sharing, the Caching button is clicked.
+- The offline settings window appears.
+- No files or programs from the shared folder are made available offline.
 
-> Prevents confidential files being cached on clients.
+### 🔹 56. Caching Disabled and Applied
 
-#### 🔹 57. Open the Security Tab
+<p align="center"><img src="images/screenshot56.png" alt="Caching Disabled and Applied" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot57.png" alt="Open the Security Tab" width="80%"/></p>
+- The no-offline-availability option is selected and confirmed.
+- Apply and OK are clicked to finish the share configuration.
+- This prevents confidential files from being cached on client machines.
 
-> View current NTFS permissions.
+### 🔹 57. Open the Security Tab
 
-#### 🔹 58. Advanced Security Settings
+<p align="center"><img src="images/screenshot57.png" alt="Open the Security Tab" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot58.png" alt="Advanced Security Settings" width="80%"/></p>
+- In FinanceData Properties, the Security tab is selected.
+- The NTFS permissions currently set on the folder are displayed.
+- The Advanced button gives access to inheritance settings.
 
-> Inheritance controls.
+### 🔹 58. Advanced Security Settings
 
-#### 🔹 59. Disable Inheritance
+<p align="center"><img src="images/screenshot58.png" alt="Advanced Security Settings" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot59.png" alt="Disable Inheritance" width="80%"/></p>
+- The Advanced Security Settings window opens for the FinanceData folder.
+- It shows the permission entries and their inheritance state.
+- Inheritance must be disabled to control access precisely.
 
-> Convert inherited permissions to explicit entries.
+### 🔹 59. Disable Inheritance
 
-#### 🔹 60. Explicit Permissions Listed
+<p align="center"><img src="images/screenshot59.png" alt="Disable Inheritance" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot60.png" alt="Explicit Permissions Listed" width="80%"/></p>
+- Click Disable inheritance and convert inherited permissions into explicit ones.
+- The folder no longer takes permissions from its parent.
+- This allows unwanted entries to be removed safely.
 
-> Entries can now be edited individually.
+### 🔹 60. Explicit Permissions Listed
 
-#### 🔹 61. Remove Unnecessary Entries
+<p align="center"><img src="images/screenshot60.png" alt="Explicit Permissions Listed" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot61.png" alt="Remove Unnecessary Entries" width="80%"/></p>
+- After conversion, all former inherited permissions appear as explicit entries.
+- These entries can now be edited or removed individually.
+- The next step removes everything except the required accounts.
 
-> Only Administrators and SYSTEM remain.
+### 🔹 61. Remove Unnecessary Entries
 
-#### 🔹 62. Add the FinanceData Group in NTFS
+<p align="center"><img src="images/screenshot61.png" alt="Remove Unnecessary Entries" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot62.png" alt="Add the FinanceData Group in NTFS" width="80%"/></p>
+- All entries except Administrators (Full Control) and SYSTEM are removed.
+- This tightens the folder so that only essential accounts remain.
+- Standard Users and other broad groups lose access.
 
-> Select a principal → Check Names.
+### 🔹 62. Add the FinanceData Group in NTFS
 
-#### 🔹 63. Set NTFS Permissions for the Group
+<p align="center"><img src="images/screenshot62.png" alt="Add the FinanceData Group in NTFS" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot63.png" alt="Set NTFS Permissions for the Group" width="80%"/></p>
+- Click Add and open Select a principal.
+- FinanceData is typed and Check Names is used to resolve it.
+- The group is about to receive NTFS permissions on the folder.
 
-> Full Control on this folder, subfolders and files.
+### 🔹 63. Set NTFS Permissions for the Group
 
-#### 🔹 64. Apply the NTFS Changes
+<p align="center"><img src="images/screenshot63.png" alt="Set NTFS Permissions for the Group" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot64.png" alt="Apply the NTFS Changes" width="80%"/></p>
+- In the permission entry, Full Control is checked for the FinanceData group.
+- The entry applies to this folder, subfolders and files.
+- Members like bob and john now get file access through the group.
 
-> Updated ACL saved.
+### 🔹 64. Apply the NTFS Changes
 
-#### 🔹 65. NTFS Permissions Finalized
+<p align="center"><img src="images/screenshot64.png" alt="Apply the NTFS Changes" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot65.png" alt="NTFS Permissions Finalized" width="80%"/></p>
+- Apply is clicked and the permission window is confirmed with OK.
+- The updated permission list is saved on the folder.
+- The security tab now shows only the allowed accounts.
 
-> Final ACL: Administrators, SYSTEM, FinanceData.
+### 🔹 65. NTFS Permissions Finalized
 
-#### 🔹 66. Open Server Manager
+<p align="center"><img src="images/screenshot65.png" alt="NTFS Permissions Finalized" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot66.png" alt="Open Server Manager" width="80%"/></p>
+- The final Security tab lists Administrators, SYSTEM and FinanceData.
+- This is the intended RBAC model for the finance folder.
+- Anyone outside these accounts, like martin, will be denied.
 
-> Dashboard on SRV01.
+### 🔹 66. Open Server Manager
 
-#### 🔹 67. File and Storage Services
+<p align="center"><img src="images/screenshot66.png" alt="Open Server Manager" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot67.png" alt="File and Storage Services" width="80%"/></p>
+- Server Manager is opened on SRV01.
+- The dashboard shows the roles and features of the server.
+- File and Storage Services is the next area to open.
 
-> Shares page lists the FinanceData share.
+### 🔹 67. File and Storage Services
 
-#### 🔹 68. Open Share Properties
+<p align="center"><img src="images/screenshot67.png" alt="File and Storage Services" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot68.png" alt="Open Share Properties" width="80%"/></p>
+- The File and Storage Services section is selected on the left panel.
+- The Shares page is opened to list all network shares.
+- The FinanceData share created earlier appears here.
 
-> General / Permissions / Settings / Customize pages.
+### 🔹 68. Open Share Properties
 
-#### 🔹 69. Settings Tab
+<p align="center"><img src="images/screenshot68.png" alt="Open Share Properties" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot69.png" alt="Settings Tab" width="80%"/></p>
+- Right-click the FinanceData share and choose Properties.
+- The properties window shows General, Permissions, Settings and Customize pages.
+- The Settings page contains the access-based enumeration option.
 
-> Advanced options: enumeration and encryption.
+### 🔹 69. Settings Tab
 
-#### 🔹 70. Enable Access-Based Enumeration
+<p align="center"><img src="images/screenshot69.png" alt="Settings Tab" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot70.png" alt="Enable Access-Based Enumeration" width="80%"/></p>
+- The Settings tab of the share properties is opened.
+- It lists advanced options such as enumeration and encryption.
+- These options add another layer of protection to the share.
 
-> Users cannot even *see* folders they can't access.
+### 🔹 70. Enable Access-Based Enumeration
 
-#### 🔹 71. Enable SMB Encryption
+<p align="center"><img src="images/screenshot70.png" alt="Enable Access-Based Enumeration" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot71.png" alt="Enable SMB Encryption" width="80%"/></p>
+- Enable access-based enumeration is checked.
+- With this option, users cannot even see folders they have no permission for.
+- This hides the finance folder from unauthorized users like martin.
 
-> Protects data in transit against sniffing.
+### 🔹 71. Enable SMB Encryption
 
-#### 🔹 72. Apply Share Settings
+<p align="center"><img src="images/screenshot71.png" alt="Enable SMB Encryption" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot72.png" alt="Apply Share Settings" width="80%"/></p>
+- Encrypt data access is checked for the share.
+- SMB encryption protects the data in transit between client and server.
+- It stops attackers from reading file contents through network sniffing.
 
-> Defense-in-depth active on the share.
+### 🔹 72. Apply Share Settings
 
-#### 🔹 73. Share Settings Verified
+<p align="center"><img src="images/screenshot72.png" alt="Apply Share Settings" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot73.png" alt="Share Settings Verified" width="80%"/></p>
+- Apply and OK are clicked to save the settings.
+- Both access-based enumeration and encryption are now active.
+- The FinanceData share is configured with defense in depth.
 
-> Enumeration + encryption remain enabled.
+### 🔹 73. Share Settings Verified
 
-#### 🔹 74. Create a Test File
+<p align="center"><img src="images/screenshot73.png" alt="Share Settings Verified" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot74.png" alt="Create a Test File" width="80%"/></p>
+- The share properties are reopened and confirm the saved settings.
+- The enumeration and encryption options remain enabled.
+- The share is ready to contain test files.
 
-> `Q4_Report.txt` created for permission testing.
+### 🔹 74. Create a Test File
 
-#### 🔹 75. Add Confidential Content
+<p align="center"><img src="images/screenshot74.png" alt="Create a Test File" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot75.png" alt="Add Confidential Content" width="80%"/></p>
+- On SRV01, a new text document is created inside `C:\Shares\FinanceData`.
+- The file is named Q4_Report.txt.
+- It will be used to test whether permissions behave as designed.
 
-> Simulated sensitive finance data.
+### 🔹 75. Add Confidential Content
 
-#### 🔹 76. Test File Saved
+<p align="center"><img src="images/screenshot75.png" alt="Add Confidential Content" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot76.png" alt="Test File Saved" width="80%"/></p>
+- The file is opened and a short confidential finance message is typed in.
+- This simulates sensitive financial data stored on the server.
+- The file is saved and closed.
 
-> Ready for client-side access tests.
+### 🔹 76. Test File Saved
 
-#### 🔹 77. Login to CL01 as john
+<p align="center"><img src="images/screenshot76.png" alt="Test File Saved" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot77.png" alt="Login to CL01 as john" width="80%"/></p>
+- The folder now shows Q4_Report.txt in the FinanceData directory.
+- The file is ready for access testing from client machines.
+- The RBAC tests begin in the next section.
 
-> `CORP\john` — authorized FinanceData member.
+### 🔹 77. Login to CL01 as john
 
-#### 🔹 78. Open the Share by UNC Path
+<p align="center"><img src="images/screenshot77.png" alt="Login to CL01 as john" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot78.png" alt="Open the Share by UNC Path" width="80%"/></p>
+- On CL01, the user logs in with the domain account CORP\john.
+- john is an authorized member of the FinanceData group.
+- He should be able to open the finance share.
 
-> `\\192.168.10.25\FinanceData` accessed over SMB.
+### 🔹 78. Open the Share by UNC Path
 
-#### 🔹 79. Access Granted for john
+<p align="center"><img src="images/screenshot78.png" alt="Open the Share by UNC Path" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot79.png" alt="Access Granted for john" width="80%"/></p>
+- File Explorer is opened and the path `\\192.168.10.25\FinanceData` is typed in the address bar.
+- The request is sent to SRV01 over SMB.
+- The result shows whether RBAC allows the account in.
 
-> ✅ Authorized user can read the data.
+### 🔹 79. Access Granted for john
 
-#### 🔹 80. Access Denied for martin
+<p align="center"><img src="images/screenshot79.png" alt="Access Granted for john" width="85%"/></p>
 
-<p align="center"><img src="images/screenshot80.png" alt="Access Denied for martin" width="80%"/></p>
+- The FinanceData folder opens and Q4_Report.txt is visible.
+- This proves that the authorized user can read the data.
+- The positive test case of the RBAC design is successful.
 
-> ❌ Unauthorized user blocked — RBAC works as designed.
+### 🔹 80. Access Denied for martin
 
-</details>
+<p align="center"><img src="images/screenshot80.png" alt="Access Denied for martin" width="85%"/></p>
 
-<details>
-<summary><b>📏 Phase 4 — Microsoft Security Compliance Toolkit</b> &nbsp;·&nbsp; Steps 81–108</summary>
+- On CL02, martin tries to open `\\192.168.10.25\FinanceData`.
+- Windows shows an error saying he does not have permission to access the share.
+- This is the expected result and confirms unauthorized users are blocked.
 
-<br>
+---
 
-#### 🔹 81. Open the MSCT Download Page
+<a id="phase4"></a>
 
-<p align="center"><img src="images2/screenshot81.png" alt="Open the MSCT Download Page" width="80%"/></p>
+## 📏 Phase 4 — Microsoft Security Compliance Toolkit
 
-> Official Microsoft security baselines.
+<sub>Steps 81–108</sub>
 
-#### 🔹 82. Select Files to Download
+### 🔹 81. Open the MSCT Download Page
 
-<p align="center"><img src="images2/screenshot82.png" alt="Select Files to Download" width="80%"/></p>
+<p align="center"><img src="images2/screenshot81.png" alt="Open the MSCT Download Page" width="85%"/></p>
 
-> Windows 10 / Server 2019 baseline, Policy Analyzer, LGPO.
+- The Microsoft Security Compliance Toolkit download page is opened in the browser.
+- This toolkit provides official security baselines for Windows and Windows Server.
+- Click Download to start selecting the required packages.
 
-#### 🔹 83. LGPO.zip Selected
+### 🔹 82. Select Files to Download
 
-<p align="center"><img src="images2/screenshot83.png" alt="LGPO.zip Selected" width="80%"/></p>
+<p align="center"><img src="images2/screenshot82.png" alt="Select Files to Download" width="85%"/></p>
 
-> Local Group Policy Object tool for CLI baseline application.
+- The list of available files is displayed on the download page.
+- The Windows 10 / Windows Server 2019 baseline, Policy Analyzer and LGPO are chosen.
+- Selecting only the needed files keeps the download small.
 
-#### 🔹 84. Download Both Files
+### 🔹 83. LGPO.zip Selected
 
-<p align="center"><img src="images2/screenshot84.png" alt="Download Both Files" width="80%"/></p>
+<p align="center"><img src="images2/screenshot83.png" alt="LGPO.zip Selected" width="85%"/></p>
 
-> Policy Analyzer + LGPO downloaded.
+- LGPO.zip is highlighted among the available downloads.
+- LGPO is the Local Group Policy Object tool used to apply baselines from the command line.
+- It will be copied to System32 later so it works from anywhere.
 
-#### 🔹 85. Extract Policy Analyzer
+### 🔹 84. Download Both Files
 
-<p align="center"><img src="images2/screenshot85.png" alt="Extract Policy Analyzer" width="80%"/></p>
+<p align="center"><img src="images2/screenshot84.png" alt="Download Both Files" width="85%"/></p>
 
-> Extracted to `C:\MSCT\PolicyAnalyzer`.
+- Click Next to start downloading the selected packages.
+- The browser downloads Policy Analyzer and LGPO into the Downloads folder.
+- The files will be extracted on DC01 in the next step.
 
-#### 🔹 86. Locate LGPO.exe
+### 🔹 85. Extract Policy Analyzer
 
-<p align="center"><img src="images2/screenshot86.png" alt="Locate LGPO.exe" width="80%"/></p>
+<p align="center"><img src="images2/screenshot85.png" alt="Extract Policy Analyzer" width="85%"/></p>
 
-> Found in the Downloads folder.
+- PolicyAnalyzer.zip is extracted into `C:\MSCT\PolicyAnalyzer`.
+- The extracted folder contains the PolicyAnalyzer executable and its helper scripts.
+- This tool compares baselines against the current system settings.
 
-#### 🔹 87. LGPO Copied to System32
+### 🔹 86. Locate LGPO.exe
 
-<p align="center"><img src="images2/screenshot87.png" alt="LGPO Copied to System32" width="80%"/></p>
+<p align="center"><img src="images2/screenshot86.png" alt="Locate LGPO.exe" width="85%"/></p>
 
-> Runs from any directory via PATH.
+- The LGPO folder inside Downloads is opened and LGPO.exe is found.
+- This is the version of the tool provided in the toolkit.
+- It is copied to a system path in the next step.
 
-#### 🔹 88. Open Policy Analyzer Folder
+### 🔹 87. LGPO Copied to System32
 
-<p align="center"><img src="images2/screenshot88.png" alt="Open Policy Analyzer Folder" width="80%"/></p>
+<p align="center"><img src="images2/screenshot87.png" alt="LGPO Copied to System32" width="85%"/></p>
 
-> Contains `PolicyAnalyzer.exe` and rule files.
+- LGPO.exe is pasted into `C:\Windows\System32`.
+- Because System32 is in the PATH, the command can be run from any directory.
+- This simplifies applying the baseline from PowerShell.
 
-#### 🔹 89. Policy Analyzer Launched
+### 🔹 88. Open Policy Analyzer Folder
 
-<p align="center"><img src="images2/screenshot89.png" alt="Policy Analyzer Launched" width="80%"/></p>
+<p align="center"><img src="images2/screenshot88.png" alt="Open Policy Analyzer Folder" width="85%"/></p>
 
-> Empty until baseline is imported.
+- The folder `C:\MSCT\PolicyAnalyzer\PolicyAnalyzer_40` is opened.
+- It contains PolicyAnalyzer.exe, Policy Rules and several PowerShell scripts.
+- Double-click PolicyAnalyzer.exe to launch the tool.
 
-#### 🔹 90. Policy Analyzer Main Window
+### 🔹 89. Policy Analyzer Launched
 
-<p align="center"><img src="images2/screenshot90.png" alt="Policy Analyzer Main Window" width="80%"/></p>
+<p align="center"><img src="images2/screenshot89.png" alt="Policy Analyzer Launched" width="85%"/></p>
 
-> Add / Compare / View options.
+- Policy Analyzer opens its main window after the executable is started.
+- The window is empty because no policy rules have been added yet.
+- The baseline GPOs are imported in the following steps.
 
-#### 🔹 91. Add Files from GPOs
+### 🔹 90. Policy Analyzer Main Window
 
-<p align="center"><img src="images2/screenshot91.png" alt="Add Files from GPOs" width="80%"/></p>
+<p align="center"><img src="images2/screenshot90.png" alt="Policy Analyzer Main Window" width="85%"/></p>
 
-> File → Add files from GPO(s).
+- The main interface shows the options Add, Compare and View.
+- These are used to import policy sets and compare them with the local system.
+- The Add button begins importing the Microsoft baseline.
 
-#### 🔹 92. Browse to the Baseline GPOs
+### 🔹 91. Add Files from GPOs
 
-<p align="center"><img src="images2/screenshot92.png" alt="Browse to the Baseline GPOs" width="80%"/></p>
+<p align="center"><img src="images2/screenshot91.png" alt="Add Files from GPOs" width="85%"/></p>
 
-> Select all baseline GPO folders.
+- Click File and then Add files from GPO(s).
+- This allows the baseline GPO folders from the toolkit to be loaded.
+- Policy Analyzer reads the backup GPO format used by Microsoft baselines.
 
-#### 🔹 93. Select Policies to Import
+### 🔹 92. Browse to the Baseline GPOs
 
-<p align="center"><img src="images2/screenshot93.png" alt="Select Policies to Import" width="80%"/></p>
+<p align="center"><img src="images2/screenshot92.png" alt="Browse to the Baseline GPOs" width="85%"/></p>
 
-> Import as one rules file.
+- The folder `C:\MSCT\Windows 10 Version...\GPOs` is browsed.
+- All GPO folders for the baseline are selected.
+- These folders hold the recommended Microsoft security settings.
 
-#### 🔹 94. Confirm the Import
+### 🔹 93. Select Policies to Import
 
-<p align="center"><img src="images2/screenshot94.png" alt="Confirm the Import" width="80%"/></p>
+<p align="center"><img src="images2/screenshot93.png" alt="Select Policies to Import" width="85%"/></p>
 
-> Dialog confirms import.
+- The list of baseline policies is shown in the import window.
+- All the policies are selected and the Import button is clicked.
+- They will be saved as a single policy rules file.
 
-#### 🔹 95. Import Completed
+### 🔹 94. Confirm the Import
 
-<p align="center"><img src="images2/screenshot95.png" alt="Import Completed" width="80%"/></p>
+<p align="center"><img src="images2/screenshot94.png" alt="Confirm the Import" width="85%"/></p>
 
-> Microsoft recommended baseline loaded.
+- A dialog confirms that the selected policies are being imported.
+- Click OK to continue.
+- The window then asks for a name for the new rules file.
 
-#### 🔹 96. Name the Rules File
+### 🔹 95. Import Completed
 
-<p align="center"><img src="images2/screenshot96.png" alt="Name the Rules File" width="80%"/></p>
+<p align="center"><img src="images2/screenshot95.png" alt="Import Completed" width="85%"/></p>
 
-> Saved as `Server2019_Baseline`.
+- The import is completed and the policies are listed in Policy Analyzer.
+- The rule set is ready for comparison.
+- This represents the official Microsoft recommended baseline.
 
-#### 🔹 97. Compare Effective State
+### 🔹 96. Name the Rules File
 
-<p align="center"><img src="images2/screenshot97.png" alt="Compare Effective State" width="80%"/></p>
+<p align="center"><img src="images2/screenshot96.png" alt="Name the Rules File" width="85%"/></p>
 
-> Baseline vs the real configuration of DC01.
+- The file is saved with the name Server2019_Baseline.
+- Naming it clearly makes it easy to find later.
+- Click Compare Effective State to check the current system against it.
 
-#### 🔹 98. Understanding the Result Columns
+### 🔹 97. Compare Effective State
 
-<p align="center"><img src="images2/screenshot98.png" alt="Understanding the Result Columns" width="80%"/></p>
+<p align="center"><img src="images2/screenshot97.png" alt="Compare Effective State" width="85%"/></p>
 
-> Differences = not following the baseline.
+- The comparison results window opens.
+- Columns show the policy type, the setting, the baseline value and the effective state.
+- The effective state is the real current configuration of DC01.
 
-#### 🔹 99. Open the View Menu
+### 🔹 98. Understanding the Result Columns
 
-<p align="center"><img src="images2/screenshot99.png" alt="Open the View Menu" width="80%"/></p>
+<p align="center"><img src="images2/screenshot98.png" alt="Understanding the Result Columns" width="85%"/></p>
 
-> Filtering options for the long settings list.
+- The Baseline column shows the Microsoft recommended value.
+- The Effective state column shows what is currently configured.
+- Differences between them mean the machine is not following the baseline.
 
-#### 🔹 100. Show Only Differences
+### 🔹 99. Open the View Menu
 
-<p align="center"><img src="images2/screenshot100.png" alt="Show Only Differences" width="80%"/></p>
+<p align="center"><img src="images2/screenshot99.png" alt="Open the View Menu" width="85%"/></p>
 
-> Highlights every misconfiguration.
+- The View menu at the top of Policy Analyzer is opened.
+- It offers several filtering options for the long list of settings.
+- Filtering helps focus on settings that need attention.
 
-#### 🔹 101. Misconfigurations Highlighted
+### 🔹 100. Show Only Differences
 
-<p align="center"><img src="images2/screenshot101.png" alt="Misconfigurations Highlighted" width="80%"/></p>
+<p align="center"><img src="images2/screenshot100.png" alt="Show Only Differences" width="85%"/></p>
 
-> Yellow cells, e.g. audit policies set to *No Auditing*.
+- Show only Differences is selected from the View menu.
+- The list now contains only settings that differ from the baseline.
+- This highlights every misconfiguration on the domain controller.
 
-#### 🔹 102. Open the Local_Script Folder
+### 🔹 101. Misconfigurations Highlighted
 
-<p align="center"><img src="images2/screenshot102.png" alt="Open the Local_Script Folder" width="80%"/></p>
+<p align="center"><img src="images2/screenshot101.png" alt="Misconfigurations Highlighted" width="85%"/></p>
 
-> Contains `BaselineLocalInstall.ps1`.
+- Yellow cells show where the effective state does not match the baseline.
+- Examples include audit policy settings that are set to No Auditing.
+- These findings are documented as the top issues for the lab report.
 
-#### 🔹 103. Set the Execution Policy
+### 🔹 102. Open the Local_Script Folder
 
-<p align="center"><img src="images2/screenshot103.png" alt="Set the Execution Policy" width="80%"/></p>
+<p align="center"><img src="images2/screenshot102.png" alt="Open the Local_Script Folder" width="85%"/></p>
 
-> `Set-ExecutionPolicy RemoteSigned` to allow the script.
+- PowerShell is run as Administrator and the Local_Script folder of the baseline is opened with `cd`.
+- This folder contains BaselineLocalInstall.ps1.
+- The script applies the security baseline to the local machine.
 
-#### 🔹 104. Apply the Baseline on DC01
+### 🔹 103. Set the Execution Policy
 
-<p align="center"><img src="images2/screenshot104.png" alt="Apply the Baseline on DC01" width="80%"/></p>
+<p align="center"><img src="images2/screenshot103.png" alt="Set the Execution Policy" width="85%"/></p>
 
-> `.\BaselineLocalInstall.ps1 -WS2019DomainController`
+- `Set-ExecutionPolicy RemoteSigned` is entered and confirmed with Y.
+- This allows the downloaded baseline script to be executed.
+- Without it, PowerShell would block the script.
 
-#### 🔹 105. Open Local Group Policy Editor
+### 🔹 104. Apply the Baseline on DC01
 
-<p align="center"><img src="images2/screenshot105.png" alt="Open Local Group Policy Editor" width="80%"/></p>
+<p align="center"><img src="images2/screenshot104.png" alt="Apply the Baseline on DC01" width="85%"/></p>
 
-> `gpedit.msc` to verify.
+- The command `.\BaselineLocalInstall.ps1 -WS2019DomainController` is executed.
+- The script uses LGPO to import all recommended settings for a domain controller.
+- The output shows each policy area being applied.
 
-#### 🔹 106. Navigate to Account Policies
+### 🔹 105. Open Local Group Policy Editor
 
-<p align="center"><img src="images2/screenshot106.png" alt="Navigate to Account Policies" width="80%"/></p>
+<p align="center"><img src="images2/screenshot105.png" alt="Open Local Group Policy Editor" width="85%"/></p>
 
-> Password and Account Lockout policies.
+- `gpedit.msc` is run to open the Local Group Policy Editor.
+- It is used to verify that the baseline has been applied.
+- The Computer Configuration section is expanded.
 
-#### 🔹 107. Password Policy Verified
+### 🔹 106. Navigate to Account Policies
 
-<p align="center"><img src="images2/screenshot107.png" alt="Password Policy Verified" width="80%"/></p>
+<p align="center"><img src="images2/screenshot106.png" alt="Navigate to Account Policies" width="85%"/></p>
 
-> Stricter values confirm baseline applied.
+- The path Computer Configuration > Windows Settings > Security Settings > Account Policies is opened.
+- The Password Policy and Account Lockout Policy are listed.
+- These are the first settings to review after applying the baseline.
 
-#### 🔹 108. Baseline Applied on SRV01
+### 🔹 107. Password Policy Verified
 
-<p align="center"><img src="images2/screenshot108.png" alt="Baseline Applied on SRV01" width="80%"/></p>
+<p align="center"><img src="images2/screenshot107.png" alt="Password Policy Verified" width="85%"/></p>
 
-> Same process repeated; DC01 + SRV01 aligned.
+- The Password Policy now shows stricter values than before.
+- Examples are a longer minimum length and password history enforcement.
+- This confirms the security baseline was applied successfully.
 
-</details>
+### 🔹 108. Baseline Applied on SRV01
 
-<details>
-<summary><b>🔄 Phase 5 — Patch Management with BatchPatch</b> &nbsp;·&nbsp; Steps 109–126</summary>
+<p align="center"><img src="images2/screenshot108.png" alt="Baseline Applied on SRV01" width="85%"/></p>
 
-<br>
+- The same baseline process is repeated on SRV01 using LGPO.
+- The script output confirms that the settings were imported.
+- Both DC01 and SRV01 are now aligned with Microsoft recommendations.
 
-#### 🔹 109. Run the BatchPatch Installer
+---
 
-<p align="center"><img src="images2/screenshot109.png" alt="Run the BatchPatch Installer" width="80%"/></p>
+<a id="phase5"></a>
 
-> Prompts for `PsExec.exe` location.
+## 🔄 Phase 5 — Patch Management with BatchPatch
 
-#### 🔹 110. Locate PsExec
+<sub>Steps 109–126</sub>
 
-<p align="center"><img src="images2/screenshot110.png" alt="Locate PsExec" width="80%"/></p>
+### 🔹 109. Run the BatchPatch Installer
 
-> Browse PSTools folder.
+<p align="center"><img src="images2/screenshot109.png" alt="Run the BatchPatch Installer" width="85%"/></p>
 
-#### 🔹 111. Select PsExec.exe
+- The BatchPatch installer is launched on SRV01.
+- A prompt asks the user to provide the location of PsExec.exe.
+- PsExec is needed by BatchPatch to execute actions on remote machines.
 
-<p align="center"><img src="images2/screenshot111.png" alt="Select PsExec.exe" width="80%"/></p>
+### 🔹 110. Locate PsExec
 
-> Used for remote command execution.
+<p align="center"><img src="images2/screenshot110.png" alt="Locate PsExec" width="85%"/></p>
 
-#### 🔹 112. Register File Extensions
+- After clicking OK, a file browser opens.
+- The PSTools folder is browsed to find PsExec.exe.
+- BatchPatch stores this path for future remote operations.
 
-<p align="center"><img src="images2/screenshot112.png" alt="Register File Extensions" width="80%"/></p>
+### 🔹 111. Select PsExec.exe
 
-> Yes — BatchPatch installed.
+<p align="center"><img src="images2/screenshot111.png" alt="Select PsExec.exe" width="85%"/></p>
 
-#### 🔹 113. Add Hosts to BatchPatch
+- PsExec.exe is selected from the PSTools folder.
+- BatchPatch confirms the file is valid.
+- It will be used for remote command execution.
 
-<p align="center"><img src="images2/screenshot113.png" alt="Add Hosts to BatchPatch" width="80%"/></p>
+### 🔹 112. Register File Extensions
 
-> Grid → Add Hosts.
+<p align="center"><img src="images2/screenshot112.png" alt="Register File Extensions" width="85%"/></p>
 
-#### 🔹 114. Hosts Added
+- BatchPatch asks if file extensions should be registered.
+- Yes is selected.
+- BatchPatch is now installed and opens its main grid.
 
-<p align="center"><img src="images2/screenshot114.png" alt="Hosts Added" width="80%"/></p>
+### 🔹 113. Add Hosts to BatchPatch
 
-> Lab machines listed in the grid.
+<p align="center"><img src="images2/screenshot113.png" alt="Add Hosts to BatchPatch" width="85%"/></p>
 
-#### 🔹 115. Specify Alternate Credentials
+- In the Grid menu, Add Hosts is selected.
+- A window opens where machine names or IP addresses are typed.
+- Each target machine is entered on its own line.
 
-<p align="center"><img src="images2/screenshot115.png" alt="Specify Alternate Credentials" width="80%"/></p>
+### 🔹 114. Hosts Added
 
-> Administrator account for remote access.
+<p align="center"><img src="images2/screenshot114.png" alt="Hosts Added" width="85%"/></p>
 
-#### 🔹 116. Enter Domain Credentials
+- The IP addresses of the lab machines are listed, including 192.168.10.102.
+- After clicking OK, they appear as rows in the BatchPatch grid.
+- These are the machines that will be scanned and patched.
 
-<p align="center"><img src="images2/screenshot116.png" alt="Enter Domain Credentials" width="80%"/></p>
+### 🔹 115. Specify Alternate Credentials
 
-> Domain `corp.local`; session-only.
+<p align="center"><img src="images2/screenshot115.png" alt="Specify Alternate Credentials" width="85%"/></p>
 
-#### 🔹 117. Credentials Saved
+- Actions > Specify alternate logon credentials is opened.
+- This lets BatchPatch connect to the remote machines with an administrative account.
+- The username is set to Administrator.
 
-<p align="center"><img src="images2/screenshot117.png" alt="Credentials Saved" width="80%"/></p>
+### 🔹 116. Enter Domain Credentials
 
-> Ready to scan.
+<p align="center"><img src="images2/screenshot116.png" alt="Enter Domain Credentials" width="85%"/></p>
 
-#### 🔹 118. Select All Hosts
+- The domain administrator password and the domain corp.local are entered.
+- These credentials give BatchPatch the rights to query and install updates.
+- Credentials are stored for the session only.
 
-<p align="center"><img src="images2/screenshot118.png" alt="Select All Hosts" width="80%"/></p>
+### 🔹 117. Credentials Saved
 
-> `Ctrl+A` → Windows Updates → Check for Available Updates.
+<p align="center"><img src="images2/screenshot117.png" alt="Credentials Saved" width="85%"/></p>
 
-#### 🔹 119. Check for Available Updates
+- Clicking OK stores the credentials.
+- The grid is ready to connect to all hosts.
+- The next step is scanning for missing updates.
 
-<p align="center"><img src="images2/screenshot119.png" alt="Check for Available Updates" width="80%"/></p>
+### 🔹 118. Select All Hosts
 
-> Queries Windows Update on every target.
+<p align="center"><img src="images2/screenshot118.png" alt="Select All Hosts" width="85%"/></p>
 
-#### 🔹 120. Scan Results
+- All hosts are selected in the grid with Ctrl+A.
+- The Actions menu is opened and Windows Updates is chosen.
+- Check for Available Updates is selected to start the scan.
 
-<p align="center"><img src="images2/screenshot120.png" alt="Scan Results" width="80%"/></p>
+### 🔹 119. Check for Available Updates
 
-> Missing updates per machine.
+<p align="center"><img src="images2/screenshot119.png" alt="Check for Available Updates" width="85%"/></p>
 
-#### 🔹 121. Select Machines for Patching
+- BatchPatch starts connecting to each machine.
+- It queries Windows Update on every target.
+- Status messages appear in the grid for each host.
 
-<p align="center"><img src="images2/screenshot121.png" alt="Select Machines for Patching" width="80%"/></p>
+### 🔹 120. Scan Results
 
-> Download and Install selected.
+<p align="center"><img src="images2/screenshot120.png" alt="Scan Results" width="85%"/></p>
 
-#### 🔹 122. Reboot Option
+- After a few minutes, the grid shows the number of missing updates per machine.
+- This gives an overview of the patch level across the network.
+- Machines with missing patches are selected for installation.
 
-<p align="center"><img src="images2/screenshot122.png" alt="Reboot Option" width="80%"/></p>
+### 🔹 121. Select Machines for Patching
 
-> Automatically reboot if required.
+<p align="center"><img src="images2/screenshot121.png" alt="Select Machines for Patching" width="85%"/></p>
 
-#### 🔹 123. Confirm Installation
+- The machines that show missing updates are highlighted.
+- Actions > Windows Update > Download and Install is selected.
+- This tells BatchPatch to push the patches remotely.
 
-<p align="center"><img src="images2/screenshot123.png" alt="Confirm Installation" width="80%"/></p>
+### 🔹 122. Reboot Option
 
-> Remote install begins.
+<p align="center"><img src="images2/screenshot122.png" alt="Reboot Option" width="85%"/></p>
 
-#### 🔹 124. Patching in Progress
+- The option Automatically reboot if required is checked.
+- This makes sure updates that require a restart are completed.
+- It reduces manual work after patching.
 
-<p align="center"><img src="images2/screenshot124.png" alt="Patching in Progress" width="80%"/></p>
+### 🔹 123. Confirm Installation
 
-> Live status per machine.
+<p align="center"><img src="images2/screenshot123.png" alt="Confirm Installation" width="85%"/></p>
 
-#### 🔹 125. Open Task Scheduler
+- OK is clicked to start downloading and installing updates.
+- BatchPatch begins the remote installation on every selected host.
+- Progress appears live in the grid.
 
-<p align="center"><img src="images2/screenshot125.png" alt="Open Task Scheduler" width="80%"/></p>
+### 🔹 124. Patching in Progress
 
-> Automate patching.
+<p align="center"><img src="images2/screenshot124.png" alt="Patching in Progress" width="85%"/></p>
 
-#### 🔹 126. Weekly Patch Schedule
+- The grid shows real-time status such as downloading, installing and rebooting.
+- Each machine has its own status line.
+- This allows the administrator to track patching centrally.
 
-<p align="center"><img src="images2/screenshot126.png" alt="Weekly Patch Schedule" width="80%"/></p>
+### 🔹 125. Open Task Scheduler
 
-> Weekly recurrence — hands-free patching.
+<p align="center"><img src="images2/screenshot125.png" alt="Open Task Scheduler" width="85%"/></p>
 
-</details>
+- Actions > Task Scheduler is selected to automate patching.
+- A scheduling window opens.
+- Automatic schedules keep systems updated without manual effort.
 
-<details>
-<summary><b>🛡️ Phase 6 — Windows Hardening</b> &nbsp;·&nbsp; Steps 127–137</summary>
+### 🔹 126. Weekly Patch Schedule
 
-<br>
+<p align="center"><img src="images2/screenshot126.png" alt="Weekly Patch Schedule" width="85%"/></p>
 
-#### 🔹 127. Open Local Security Policy
+- The recurrence is set to Weekly and a day and time are chosen.
+- Clicking OK creates the scheduled patching task.
+- Patches will now be installed automatically every week.
 
-<p align="center"><img src="images2/screenshot127.png" alt="Open Local Security Policy" width="80%"/></p>
+---
 
-> `secpol.msc` on DC01.
+<a id="phase6"></a>
 
-#### 🔹 128. Open Security Options
+## 🛡️ Phase 6 — Windows Hardening
 
-<p align="center"><img src="images2/screenshot128.png" alt="Open Security Options" width="80%"/></p>
+<sub>Steps 127–137</sub>
 
-> Locate the NTLM-related setting.
+### 🔹 127. Open Local Security Policy
 
-#### 🔹 129. LAN Manager Authentication Level
+<p align="center"><img src="images2/screenshot127.png" alt="Open Local Security Policy" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot129.png" alt="LAN Manager Authentication Level" width="80%"/></p>
+- On DC01, `secpol.msc` is started from PowerShell or the Run box.
+- The Local Security Policy console opens.
+- It is used to harden the authentication settings.
 
-> Controls allowed challenge-response protocol.
+### 🔹 128. Open Security Options
 
-#### 🔹 130. Send NTLMv2 Only
+<p align="center"><img src="images2/screenshot128.png" alt="Open Security Options" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot130.png" alt="Send NTLMv2 Only" width="80%"/></p>
+- Security Settings > Local Policies > Security Options is expanded.
+- A long list of security-related policies is displayed.
+- The NTLM-related setting is located in this list.
 
-> *Send NTLMv2 response only. Refuse LM & NTLM* — repeated on SRV01.
+### 🔹 129. LAN Manager Authentication Level
 
-#### 🔹 131. Check Firewall Profiles
+<p align="center"><img src="images2/screenshot129.png" alt="LAN Manager Authentication Level" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot131.png" alt="Check Firewall Profiles" width="80%"/></p>
+- Network security: LAN Manager authentication level is located.
+- Double-clicking it opens its properties dialog.
+- The setting controls which challenge-response protocol is allowed.
 
-> `Get-NetFirewallProfile | Select Name, Enabled`
+### 🔹 130. Send NTLMv2 Only
 
-#### 🔹 132. Allow SMB from the Internal Network
+<p align="center"><img src="images2/screenshot130.png" alt="Send NTLMv2 Only" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot132.png" alt="Allow SMB from the Internal Network" width="80%"/></p>
+- The value is set to Send NTLMv2 response only. Refuse LM & NTLM.
+- Older and weaker protocols are disabled.
+- The same configuration is then repeated on SRV01.
 
-> Rule allows SMB only from `192.168.10.0/24`.
+### 🔹 131. Check Firewall Profiles
 
-#### 🔹 133. Block SMB from Everywhere Else
+<p align="center"><img src="images2/screenshot131.png" alt="Check Firewall Profiles" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot133.png" alt="Block SMB from Everywhere Else" width="80%"/></p>
+- The command `Get-NetFirewallProfile | Select Name, Enabled` is run.
+- It lists the Domain, Private and Public profiles with their status.
+- All profiles should be enabled for proper protection.
 
-> *Block SMB External* rule for `0.0.0.0/0`.
+### 🔹 132. Allow SMB from the Internal Network
 
-#### 🔹 134. Enable Advanced Audit Policies
+<p align="center"><img src="images2/screenshot132.png" alt="Allow SMB from the Internal Network" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot134.png" alt="Enable Advanced Audit Policies" width="80%"/></p>
+- A firewall rule is created that allows SMB only from 192.168.10.0/24.
+- This limits file sharing access to trusted lab machines.
+- The command is run on SRV01 to protect the file share.
 
-> `auditpol` success/failure auditing (e.g. DS Access).
+### 🔹 133. Block SMB from Everywhere Else
 
-#### 🔹 135. More Audit Categories Enabled
+<p align="center"><img src="images2/screenshot133.png" alt="Block SMB from Everywhere Else" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot135.png" alt="More Audit Categories Enabled" width="80%"/></p>
+- A second rule named Block SMB External blocks traffic from 0.0.0.0/0.
+- Together with the allow rule, only the internal subnet can reach SMB.
+- This reduces exposure to attacks from outside the network.
 
-> Logons, account changes, policy changes.
+### 🔹 134. Enable Advanced Audit Policies
 
-#### 🔹 136. Verify Audit Policy
+<p align="center"><img src="images2/screenshot134.png" alt="Enable Advanced Audit Policies" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot136.png" alt="Verify Audit Policy" width="80%"/></p>
+- The `auditpol` command enables success and failure auditing for categories like DS Access.
+- Auditing records important security events in the Windows Security log.
+- These logs will later be collected by Wazuh.
 
-> `auditpol /get /category:*`
+### 🔹 135. More Audit Categories Enabled
 
-#### 🔹 137. Audit Policy on SRV01
+<p align="center"><img src="images2/screenshot135.png" alt="More Audit Categories Enabled" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot137.png" alt="Audit Policy on SRV01" width="80%"/></p>
+- Additional `auditpol` commands are executed for other categories.
+- Each command returns a success message.
+- This increases visibility into logons, account changes and policy changes.
 
-> Both servers now produce detailed security logs.
+### 🔹 136. Verify Audit Policy
 
-</details>
+<p align="center"><img src="images2/screenshot136.png" alt="Verify Audit Policy" width="85%"/></p>
 
-<details>
-<summary><b>📡 Phase 7 — Wazuh SIEM Deployment & Agents</b> &nbsp;·&nbsp; Steps 138–164</summary>
+- `auditpol /get /category:*` is executed.
+- The output lists every category and its configured setting.
+- It confirms that success and failure auditing are active.
 
-<br>
+### 🔹 137. Audit Policy on SRV01
 
-#### 🔹 138. Wazuh Server Installation Begins
+<p align="center"><img src="images2/screenshot137.png" alt="Audit Policy on SRV01" width="85%"/></p>
 
-<p align="center"><img src="images2/screenshot138.jpeg" alt="Wazuh Server Installation Begins" width="80%"/></p>
+- The same audit commands are run on SRV01.
+- Verification shows the settings are in place.
+- Both servers now generate detailed security logs.
 
-> Open-source SIEM/XDR on IDS01.
+---
 
-#### 🔹 139. Update the System
+<a id="phase7"></a>
 
-<p align="center"><img src="images2/screenshot139.jpeg" alt="Update the System" width="80%"/></p>
+## 📡 Phase 7 — Wazuh SIEM Deployment & Agents
 
-> `sudo apt update && sudo apt upgrade -y`
+<sub>Steps 138–164</sub>
 
-#### 🔹 140. Install curl
+### 🔹 138. Wazuh Server Installation Begins
 
-<p align="center"><img src="images2/screenshot140.jpeg" alt="Install curl" width="80%"/></p>
+<p align="center"><img src="images2/screenshot138.jpeg" alt="Wazuh Server Installation Begins" width="85%"/></p>
 
-> Needed to fetch the installer.
+- The Wazuh logo appears as the introduction to the Wazuh installation on IDS01.
+- Wazuh is an open-source SIEM and XDR platform.
+- It will collect, analyze and alert on security events across the lab.
 
-#### 🔹 141. Run the Wazuh Install Script
+### 🔹 139. Update the System
 
-<p align="center"><img src="images2/screenshot141.jpeg" alt="Run the Wazuh Install Script" width="80%"/></p>
+<p align="center"><img src="images2/screenshot139.jpeg" alt="Update the System" width="85%"/></p>
 
-> `wazuh-install.sh -a` — all-in-one (indexer, manager, Filebeat, dashboard).
+- The commands `sudo apt update && sudo apt upgrade -y` are run on IDS01.
+- This makes sure all system packages are current before installing Wazuh.
+- It also reduces dependency problems during installation.
 
-#### 🔹 142. Wazuh Admin Credentials
+### 🔹 140. Install curl
 
-<p align="center"><img src="images2/screenshot142.jpeg" alt="Wazuh Admin Credentials" width="80%"/></p>
+<p align="center"><img src="images2/screenshot140.jpeg" alt="Install curl" width="85%"/></p>
 
-> Admin password printed — save it.
+- The command `sudo apt install curl` is executed.
+- curl is required to download the Wazuh installation script.
+- The terminal shows the package being installed.
 
-#### 🔹 143. Open the Dashboard in the Browser
+### 🔹 141. Run the Wazuh Install Script
 
-<p align="center"><img src="images2/screenshot143.jpeg" alt="Open the Dashboard in the Browser" width="80%"/></p>
+<p align="center"><img src="images2/screenshot141.jpeg" alt="Run the Wazuh Install Script" width="85%"/></p>
 
-> HTTPS with self-signed certificate warning.
+- The curl command downloads wazuh-install.sh and runs it with the `-a` option.
+- The terminal shows the indexer, manager, Filebeat and dashboard being installed step by step.
+- The all-in-one installation sets up every Wazuh component on one machine.
 
-#### 🔹 144. Wazuh Login Page
+### 🔹 142. Wazuh Admin Credentials
 
-<p align="center"><img src="images2/screenshot144.png" alt="Wazuh Login Page" width="80%"/></p>
+<p align="center"><img src="images2/screenshot142.jpeg" alt="Wazuh Admin Credentials" width="85%"/></p>
 
-> Log in with admin credentials.
+- After installation, the terminal prints the admin username and password.
+- These credentials must be saved before closing the terminal.
+- They are used to log in to the dashboard.
 
-#### 🔹 145. Wazuh Dashboard Overview
+### 🔹 143. Open the Dashboard in the Browser
 
-<p align="center"><img src="images2/screenshot145.jpeg" alt="Wazuh Dashboard Overview" width="80%"/></p>
+<p align="center"><img src="images2/screenshot143.jpeg" alt="Open the Dashboard in the Browser" width="85%"/></p>
 
-> Security events, FIM, vulnerability detection.
+- The server IP address is entered in the browser using https.
+- A certificate warning appears because the certificate is self-signed.
+- Click Advanced and proceed to continue.
 
-#### 🔹 146. Open https://192.168.10.60
+### 🔹 144. Wazuh Login Page
 
-<p align="center"><img src="images2/screenshot146.png" alt="Open https://192.168.10.60" width="80%"/></p>
+<p align="center"><img src="images2/screenshot144.png" alt="Wazuh Login Page" width="85%"/></p>
 
-> IDS01 dashboard from a lab machine.
+- The Wazuh login page is displayed.
+- The admin username and the saved password are entered.
+- Successful login opens the main dashboard.
 
-#### 🔹 147. Accept the Certificate Warning
+### 🔹 145. Wazuh Dashboard Overview
 
-<p align="center"><img src="images2/screenshot147.png" alt="Accept the Certificate Warning" width="80%"/></p>
+<p align="center"><img src="images2/screenshot145.jpeg" alt="Wazuh Dashboard Overview" width="85%"/></p>
 
-> Safe inside the controlled lab.
+- The dashboard shows the main modules of Wazuh.
+- These include security events, integrity monitoring and vulnerability detection.
+- Administrators use this interface to monitor all connected agents.
 
-#### 🔹 148. Logged In as admin
+### 🔹 146. Open https://192.168.10.60
 
-<p align="center"><img src="images2/screenshot148.png" alt="Logged In as admin" width="80%"/></p>
+<p align="center"><img src="images2/screenshot146.png" alt="Open https://192.168.10.60" width="85%"/></p>
 
-> SIEM ready to receive agent data.
+- The IDS01 address is opened in the browser on a lab machine.
+- A security warning appears for the self-signed certificate.
+- The warning is accepted to proceed to the login page.
 
-#### 🔹 149. Connect Agents to the Server
+### 🔹 147. Accept the Certificate Warning
 
-<p align="center"><img src="images2/screenshot149.png" alt="Connect Agents to the Server" width="80%"/></p>
+<p align="center"><img src="images2/screenshot147.png" alt="Accept the Certificate Warning" width="85%"/></p>
 
-> An agent is needed on each endpoint.
+- Advanced is expanded and the option to continue to the site is chosen.
+- This is safe because the server is part of the controlled lab.
+- The Wazuh login page then loads.
 
-#### 🔹 150. Search for Wazuh Agent
+### 🔹 148. Logged In as admin
 
-<p align="center"><img src="images2/screenshot150.jpeg" alt="Search for Wazuh Agent" width="80%"/></p>
+<p align="center"><img src="images2/screenshot148.png" alt="Logged In as admin" width="85%"/></p>
 
-> Use the official Wazuh site.
+- The admin account is used to sign in to Wazuh.
+- The main dashboard loads successfully.
+- The SIEM is ready to receive data from agents.
 
-#### 🔹 151. Open the Wazuh Website
+### 🔹 149. Connect Agents to the Server
 
-<p align="center"><img src="images2/screenshot151.jpeg" alt="Open the Wazuh Website" width="80%"/></p>
+<p align="center"><img src="images2/screenshot149.png" alt="Connect Agents to the Server" width="85%"/></p>
 
-> Windows installer (MSI) guide.
+- The section about connecting Wazuh agents is opened.
+- A Wazuh agent must be installed on each endpoint.
+- The first agent will be installed on a Windows VM.
 
-#### 🔹 152. Download the Windows Installer
+### 🔹 150. Search for Wazuh Agent
 
-<p align="center"><img src="images2/screenshot152.png" alt="Download the Windows Installer" width="80%"/></p>
+<p align="center"><img src="images2/screenshot150.jpeg" alt="Search for Wazuh Agent" width="85%"/></p>
 
-> MSI saved to Downloads.
+- The browser is used to search for the Wazuh agent download.
+- The official Wazuh documentation website is chosen.
+- Using the official site ensures the installer is genuine.
 
-#### 🔹 153. Run the Agent Installer
+### 🔹 151. Open the Wazuh Website
 
-<p align="center"><img src="images2/screenshot153.jpeg" alt="Run the Agent Installer" width="80%"/></p>
+<p align="center"><img src="images2/screenshot151.jpeg" alt="Open the Wazuh Website" width="85%"/></p>
 
-> Administrator rights required.
+- The official Wazuh installation guide is open.
+- The GUI option and the Windows installer are selected.
+- This leads to the MSI download for Windows.
 
-#### 🔹 154. Install the Agent
+### 🔹 152. Download the Windows Installer
 
-<p align="center"><img src="images2/screenshot154.png" alt="Install the Agent" width="80%"/></p>
+<p align="center"><img src="images2/screenshot152.png" alt="Download the Windows Installer" width="85%"/></p>
 
-> Setup wizard completed.
+- The Windows installer is selected on the website.
+- The download begins automatically.
+- The MSI file is saved in the Downloads folder.
 
-#### 🔹 155. Open Wazuh Agent Manager
+### 🔹 153. Run the Agent Installer
 
-<p align="center"><img src="images2/screenshot155.png" alt="Open Wazuh Agent Manager" width="80%"/></p>
+<p align="center"><img src="images2/screenshot153.jpeg" alt="Run the Agent Installer" width="85%"/></p>
 
-> Manager IP must be set.
+- The downloaded installer is started on the Windows VM.
+- The setup wizard opens.
+- Administrator rights are required to install it.
 
-#### 🔹 156. Enter the Manager IP
+### 🔹 154. Install the Agent
 
-<p align="center"><img src="images2/screenshot156.jpeg" alt="Enter the Manager IP" width="80%"/></p>
+<p align="center"><img src="images2/screenshot154.png" alt="Install the Agent" width="85%"/></p>
 
-> `192.168.10.60`
+- Next is clicked through the setup wizard and the agent is installed.
+- The wizard confirms the installation is finished.
+- The agent manager can then be opened.
 
-#### 🔹 157. Start the Agent Service
+### 🔹 155. Open Wazuh Agent Manager
 
-<p align="center"><img src="images2/screenshot157.jpeg" alt="Start the Agent Service" width="80%"/></p>
+<p align="center"><img src="images2/screenshot155.png" alt="Open Wazuh Agent Manager" width="85%"/></p>
 
-> Key generated, status Running.
+- The Wazuh Agent Manager window is opened after installation.
+- The manager IP field must be filled in.
+- It should contain the IP address of the Wazuh server, 192.168.10.60.
 
-#### 🔹 158. Agent Registered
+### 🔹 156. Enter the Manager IP
 
-<p align="center"><img src="images2/screenshot158.jpeg" alt="Agent Registered" width="80%"/></p>
+<p align="center"><img src="images2/screenshot156.jpeg" alt="Enter the Manager IP" width="85%"/></p>
 
-> Appears in the Wazuh dashboard.
+- The Wazuh server IP is typed into the Manager IP field.
+- Save is clicked to store the configuration.
+- This tells the agent where to send its logs.
 
-#### 🔹 159. Add the Wazuh GPG Key
+### 🔹 157. Start the Agent Service
 
-<p align="center"><img src="images2/screenshot159.png" alt="Add the Wazuh GPG Key" width="80%"/></p>
+<p align="center"><img src="images2/screenshot157.jpeg" alt="Start the Agent Service" width="85%"/></p>
 
-> Linux: lets apt verify Wazuh packages.
+- Start, Restart and Refresh are clicked in the Agent Manager.
+- An authentication key is generated automatically.
+- The status changes to Running.
 
-#### 🔹 160. Add the Wazuh Repository
+### 🔹 158. Agent Registered
 
-<p align="center"><img src="images2/screenshot160.png" alt="Add the Wazuh Repository" width="80%"/></p>
+<p align="center"><img src="images2/screenshot158.jpeg" alt="Agent Registered" width="85%"/></p>
 
-> Official Wazuh apt repo added.
+- The agent status shows Running and connected.
+- The agent now appears in the Wazuh dashboard.
+- The same steps are repeated on all other Windows machines.
 
-#### 🔹 161. Install the Wazuh Agent
+### 🔹 159. Add the Wazuh GPG Key
 
-<p align="center"><img src="images3/screenshot161.png" alt="Install the Wazuh Agent" width="80%"/></p>
+<p align="center"><img src="images2/screenshot159.png" alt="Add the Wazuh GPG Key" width="85%"/></p>
 
-> `sudo apt-get install wazuh-agent -y`
+- On the Linux machine, the Wazuh GPG key is downloaded and stored in the keyrings folder.
+- This lets apt verify that packages come from Wazuh.
+- It is the first step of adding the repository.
 
-#### 🔹 162. Configure the Manager IP
+### 🔹 160. Add the Wazuh Repository
 
-<p align="center"><img src="images3/screenshot162.png" alt="Configure the Manager IP" width="80%"/></p>
+<p align="center"><img src="images2/screenshot160.png" alt="Add the Wazuh Repository" width="85%"/></p>
 
-> `sed` replaces `MANAGER_IP` in `ossec.conf`.
+- The Wazuh apt repository line is added to the sources list.
+- The command points apt to the official Wazuh package server.
+- After this, `apt-get update` refreshes the package list.
 
-#### 🔹 163. Start and Enable the Agent
+### 🔹 161. Install the Wazuh Agent
 
-<p align="center"><img src="images3/screenshot163.png" alt="Start and Enable the Agent" width="80%"/></p>
+<p align="center"><img src="images3/screenshot161.png" alt="Install the Wazuh Agent" width="85%"/></p>
 
-> `systemctl start` + `enable wazuh-agent`.
+- `sudo apt-get install wazuh-agent -y` is run on the Linux machine.
+- The package manager downloads and installs the agent.
+- Installation completes and the service is ready to configure.
 
-#### 🔹 164. Active Agent in Dashboard
+### 🔹 162. Configure the Manager IP
 
-<p align="center"><img src="images3/screenshot164.png" alt="Active Agent in Dashboard" width="80%"/></p>
+<p align="center"><img src="images3/screenshot162.png" alt="Configure the Manager IP" width="85%"/></p>
 
-> Linux endpoint **Active** — logs flowing.
+- `sed` is used to replace MANAGER_IP in ossec.conf with 192.168.10.60.
+- This points the Linux agent to the IDS01 Wazuh server.
+- The agent configuration file is updated directly from the command line.
 
-</details>
+### 🔹 163. Start and Enable the Agent
 
-<details>
-<summary><b>🔍 Phase 8 — Sysmon & Log Collection</b> &nbsp;·&nbsp; Steps 165–182</summary>
+<p align="center"><img src="images3/screenshot163.png" alt="Start and Enable the Agent" width="85%"/></p>
 
-<br>
+- `sudo systemctl start wazuh-agent` and `enable wazuh-agent` are executed.
+- This starts the agent and configures it to launch at boot.
+- The service status can then be checked with `systemctl status`.
 
-#### 🔹 165. Download Sysmon
+### 🔹 164. Active Agent in Dashboard
 
-<p align="center"><img src="images3/screenshot165.png" alt="Download Sysmon" width="80%"/></p>
+<p align="center"><img src="images3/screenshot164.png" alt="Active Agent in Dashboard" width="85%"/></p>
 
-> Sysinternals Sysmon package.
+- The Wazuh dashboard Agents page shows the Linux machine as Active.
+- This confirms that logs are now flowing into Wazuh.
+- Both Windows and Linux endpoints are now monitored.
 
-#### 🔹 166. Extract the Sysmon Package
+---
 
-<p align="center"><img src="images3/screenshot166.png" alt="Extract the Sysmon Package" width="80%"/></p>
+<a id="phase8"></a>
 
-> ZIP extracted on the Windows VM.
+## 🔍 Phase 8 — Sysmon & Log Collection
 
-#### 🔹 167. Sysmon Package Contents
+<sub>Steps 165–182</sub>
 
-<p align="center"><img src="images3/screenshot167.png" alt="Sysmon Package Contents" width="80%"/></p>
+### 🔹 165. Download Sysmon
 
-> `Sysmon64.exe` for 64-bit systems.
+<p align="center"><img src="images3/screenshot165.png" alt="Download Sysmon" width="85%"/></p>
 
-#### 🔹 168. Download the SwiftOnSecurity Config
+- The Sysinternals Sysmon download page is opened.
+- Sysmon provides detailed Windows event logging beyond the default logs.
+- The ZIP package is downloaded to the Windows VM.
 
-<p align="center"><img src="images3/screenshot168.jpeg" alt="Download the SwiftOnSecurity Config" width="80%"/></p>
+### 🔹 166. Extract the Sysmon Package
 
-> Community configuration with strong defaults.
+<p align="center"><img src="images3/screenshot166.png" alt="Extract the Sysmon Package" width="85%"/></p>
 
-#### 🔹 169. Copy the Config File
+- The downloaded Sysmon ZIP file is extracted.
+- The extracted folder contains the Sysmon executables and license file.
+- These files are used to install the Sysmon service.
 
-<p align="center"><img src="images3/screenshot169.png" alt="Copy the Config File" width="80%"/></p>
+### 🔹 167. Sysmon Package Contents
 
-> Placed next to `sysmon64.exe`.
+<p align="center"><img src="images3/screenshot167.png" alt="Sysmon Package Contents" width="85%"/></p>
 
-#### 🔹 170. Save Config as XML
+- The extracted folder shows Eula, Sysmon, Sysmon64 and Sysmon64a files.
+- Sysmon64 is the 64-bit executable used on modern Windows systems.
+- A configuration file will be added to this same folder.
 
-<p align="center"><img src="images3/screenshot170.png" alt="Save Config as XML" width="80%"/></p>
+### 🔹 168. Download the SwiftOnSecurity Config
 
-> `.xml` extension as Sysmon expects.
+<p align="center"><img src="images3/screenshot168.jpeg" alt="Download the SwiftOnSecurity Config" width="85%"/></p>
 
-#### 🔹 171. Install Sysmon with the Config
+- The SwiftOnSecurity Sysmon configuration is downloaded from GitHub.
+- This is a widely used community configuration with strong default rules.
+- It defines which events Sysmon should log in detail.
 
-<p align="center"><img src="images3/screenshot171.png" alt="Install Sysmon with the Config" width="80%"/></p>
+### 🔹 169. Copy the Config File
 
-> `sysmon64.exe -i sysmonconfig-export.xml`
+<p align="center"><img src="images3/screenshot169.png" alt="Copy the Config File" width="85%"/></p>
 
-#### 🔹 172. Accept the License Agreement
+- The sysmonconfig-export file is copied into the same folder as sysmon64.exe.
+- Keeping them together simplifies the installation command.
+- The file will be renamed with an .xml extension.
 
-<p align="center"><img src="images3/screenshot172.png" alt="Accept the License Agreement" width="80%"/></p>
+### 🔹 170. Save Config as XML
 
-> EULA accepted.
+<p align="center"><img src="images3/screenshot170.png" alt="Save Config as XML" width="85%"/></p>
 
-#### 🔹 173. Installation Successful
+- The configuration file is saved with the .xml extension in the Sysmon folder.
+- This matches the format Sysmon expects when installing.
+- The next step installs Sysmon using this configuration.
 
-<p align="center"><img src="images3/screenshot173.jpeg" alt="Installation Successful" width="80%"/></p>
+### 🔹 171. Install Sysmon with the Config
 
-> Sysmon service running.
+<p align="center"><img src="images3/screenshot171.png" alt="Install Sysmon with the Config" width="85%"/></p>
 
-#### 🔹 174. View Sysmon Logs in Event Viewer
+- Command Prompt is run as Administrator and `sysmon64.exe -i sysmonconfig-export.xml` is executed.
+- This installs Sysmon as a Windows service using the custom configuration.
+- A license agreement prompt appears first.
 
-<p align="center"><img src="images3/screenshot174.png" alt="View Sysmon Logs in Event Viewer" width="80%"/></p>
+### 🔹 172. Accept the License Agreement
 
-> Microsoft → Windows → Sysmon → Operational.
+<p align="center"><img src="images3/screenshot172.png" alt="Accept the License Agreement" width="85%"/></p>
 
-#### 🔹 175. Locate the Agent Config File
+- The Sysmon license prompt is accepted by clicking Agree.
+- Installation then proceeds in the terminal.
+- A success message appears once Sysmon is installed.
 
-<p align="center"><img src="images3/screenshot175.jpeg" alt="Locate the Agent Config File" width="80%"/></p>
+### 🔹 173. Installation Successful
 
-> `ossec.conf` in `ossec-agent`.
+<p align="center"><img src="images3/screenshot173.jpeg" alt="Installation Successful" width="85%"/></p>
 
-#### 🔹 176. Add Sysmon as a Log Source
+- The terminal confirms that Sysmon was installed successfully.
+- The Sysmon service is now running and logging system activity.
+- Its events can be viewed in Event Viewer.
 
-<p align="center"><img src="images3/screenshot176.png" alt="Add Sysmon as a Log Source" width="80%"/></p>
+### 🔹 174. View Sysmon Logs in Event Viewer
 
-> `localfile` entry for the Sysmon Operational log.
+<p align="center"><img src="images3/screenshot174.png" alt="View Sysmon Logs in Event Viewer" width="85%"/></p>
 
-#### 🔹 177. Restart the Wazuh Agent
+- Event Viewer is expanded to Microsoft > Windows > Sysmon > Operational.
+- Detailed process, network and file events generated by Sysmon are listed here.
+- These logs will next be forwarded into Wazuh.
 
-<p align="center"><img src="images3/screenshot177.jpeg" alt="Restart the Wazuh Agent" width="80%"/></p>
+### 🔹 175. Locate the Agent Config File
 
-> Loads the new log source.
+<p align="center"><img src="images3/screenshot175.jpeg" alt="Locate the Agent Config File" width="85%"/></p>
 
-#### 🔹 178. Wazuh Rules for Sysmon Events
+- The Wazuh agent configuration file ossec.conf is located under `Program Files (x86)\ossec-agent`.
+- View Config is used to open it for editing.
+- Log sources are defined inside this file.
 
-<p align="center"><img src="images3/screenshot178.jpeg" alt="Wazuh Rules for Sysmon Events" width="80%"/></p>
+### 🔹 176. Add Sysmon as a Log Source
 
-> FileCreate, ProcessAccess, RegistryEvent hits.
+<p align="center"><img src="images3/screenshot176.png" alt="Add Sysmon as a Log Source" width="85%"/></p>
 
-#### 🔹 179. Sysmon Data Confirmed in Wazuh
+- A localfile entry for the Sysmon Operational log is added inside the configuration.
+- This tells the Wazuh agent to forward Sysmon events.
+- The agent service must be restarted to apply the change.
 
-<p align="center"><img src="images3/screenshot179.jpeg" alt="Sysmon Data Confirmed in Wazuh" width="80%"/></p>
+### 🔹 177. Restart the Wazuh Agent
 
-> Process creation / image load events visible.
+<p align="center"><img src="images3/screenshot177.jpeg" alt="Restart the Wazuh Agent" width="85%"/></p>
 
-#### 🔹 180. Open Agent Log Configuration
+- The Wazuh agent service is restarted after editing the configuration.
+- This loads the new Sysmon log source.
+- Sysmon events should now start appearing in the dashboard.
 
-<p align="center"><img src="images3/screenshot180.png" alt="Open Agent Log Configuration" width="80%"/></p>
+### 🔹 178. Wazuh Rules for Sysmon Events
 
-> Review `localfile` on another agent.
+<p align="center"><img src="images3/screenshot178.jpeg" alt="Wazuh Rules for Sysmon Events" width="85%"/></p>
 
-#### 🔹 181. Verify Localfile Entries
+- The Wazuh dashboard now shows Sysmon-based rule hits such as FileCreate, ProcessAccess and RegistryEvent.
+- Each entry includes a timestamp, rule description, level and rule ID.
+- This confirms that Sysmon telemetry is being analyzed by Wazuh rules.
 
-<p align="center"><img src="images3/screenshot181.png" alt="Verify Localfile Entries" width="80%"/></p>
+### 🔹 179. Sysmon Data Confirmed in Wazuh
 
-> Block complete; config saved.
+<p align="center"><img src="images3/screenshot179.jpeg" alt="Sysmon Data Confirmed in Wazuh" width="85%"/></p>
 
-#### 🔹 182. Restart the Wazuh Service
+- Further browsing of the dashboard shows ongoing Sysmon events being logged.
+- Process creation and image load events appear alongside agent status messages.
+- The endpoint is now fully integrated with the SIEM.
 
-<p align="center"><img src="images3/screenshot182.png" alt="Restart the Wazuh Service" width="80%"/></p>
+### 🔹 180. Open Agent Log Configuration
 
-> Log collection active on all agents.
+<p align="center"><img src="images3/screenshot180.png" alt="Open Agent Log Configuration" width="85%"/></p>
 
-</details>
+- On another Wazuh agent, View Config is opened to check the localfile section.
+- The entries required for log collection are reviewed.
+- Any missing log sources are added here.
 
-<details>
-<summary><b>🎯 Phase 9 — Custom Detection Rules & MITRE ATT&CK</b> &nbsp;·&nbsp; Steps 183–189</summary>
+### 🔹 181. Verify Localfile Entries
 
-<br>
+<p align="center"><img src="images3/screenshot181.png" alt="Verify Localfile Entries" width="85%"/></p>
 
-#### 🔹 183. Open local_rules.xml
+- The closing localfile tag confirms the log source block is complete.
+- The configuration file is saved after the edit.
+- The Wazuh service is restarted to apply the new settings.
 
-<p align="center"><img src="images3/screenshot183.png" alt="Open local_rules.xml" width="80%"/></p>
+### 🔹 182. Restart the Wazuh Service
 
-> `/var/ossec/etc/rules/local_rules.xml`
+<p align="center"><img src="images3/screenshot182.png" alt="Restart the Wazuh Service" width="85%"/></p>
 
-#### 🔹 184. Add Custom Detection Rules
+- The Wazuh agent service is restarted to load the updated log collection settings.
+- This ensures the newly added log sources start being monitored.
+- Log collection is now active across all configured agents.
 
-<p align="center"><img src="images3/screenshot184.png" alt="Add Custom Detection Rules" width="80%"/></p>
+---
 
-> Rules for the lab's attack techniques.
+<a id="phase9"></a>
 
-#### 🔹 185. Restart the Wazuh Manager
+## 🎯 Phase 9 — Custom Detection Rules & MITRE ATT&CK
 
-<p align="center"><img src="images3/screenshot185.png" alt="Restart the Wazuh Manager" width="80%"/></p>
+<sub>Steps 183–189</sub>
 
-> Required to load custom rules.
+### 🔹 183. Open local_rules.xml
 
-#### 🔹 186. Verify Rules Loaded Without Errors
+<p align="center"><img src="images3/screenshot183.png" alt="Open local_rules.xml" width="85%"/></p>
 
-<p align="center"><img src="images3/screenshot186.png" alt="Verify Rules Loaded Without Errors" width="80%"/></p>
+- On IDS01, `sudo nano /var/ossec/etc/rules/local_rules.xml` is run.
+- This file is where custom detection rules are defined.
+- It currently needs the lab's custom rule set added.
 
-> No syntax errors in the log.
+### 🔹 184. Add Custom Detection Rules
 
-#### 🔹 187. Open Wazuh Dashboard for MITRE
+<p align="center"><img src="images3/screenshot184.png" alt="Add Custom Detection Rules" width="85%"/></p>
 
-<p align="center"><img src="images3/screenshot187.png" alt="Open Wazuh Dashboard for MITRE" width="80%"/></p>
+- The existing content is cleared and new custom rules are pasted in.
+- These rules detect the specific attack techniques used later in the lab.
+- The file is saved with Ctrl+S and closed with Ctrl+X.
 
-> `https://192.168.10.60`
+### 🔹 185. Restart the Wazuh Manager
 
-#### 🔹 188. Open the MITRE ATT&CK Menu
+<p align="center"><img src="images3/screenshot185.png" alt="Restart the Wazuh Manager" width="85%"/></p>
 
-<p align="center"><img src="images3/screenshot188.png" alt="Open the MITRE ATT&CK Menu" width="80%"/></p>
+- `sudo systemctl restart wazuh-manager` is executed to load the new rules.
+- A restart is required for custom rules to take effect.
+- The manager comes back online with the updated rule set.
 
-> Left navigation → MITRE ATT&CK.
+### 🔹 186. Verify Rules Loaded Without Errors
 
-#### 🔹 189. ATT&CK Matrix View
+<p align="center"><img src="images3/screenshot186.png" alt="Verify Rules Loaded Without Errors" width="85%"/></p>
 
-<p align="center"><img src="images3/screenshot189.png" alt="ATT&CK Matrix View" width="80%"/></p>
+- The Wazuh log is checked to confirm the manager started cleanly.
+- No rule syntax errors are reported.
+- The custom detection rules are now active.
 
-> Baseline view before simulations.
+### 🔹 187. Open Wazuh Dashboard for MITRE
 
-</details>
+<p align="center"><img src="images3/screenshot187.png" alt="Open Wazuh Dashboard for MITRE" width="85%"/></p>
 
-<details>
-<summary><b>⚔️ Phase 10 — Attack Simulation from Kali</b> &nbsp;·&nbsp; Steps 190–214</summary>
+- The Wazuh dashboard is opened at https://192.168.10.60.
+- The MITRE ATT&CK module is accessed from the left-hand menu.
+- It maps detected events to known adversary techniques.
 
-<br>
+### 🔹 188. Open the MITRE ATT&CK Menu
 
-#### 🔹 190. Update Attacker Tools
+<p align="center"><img src="images3/screenshot188.png" alt="Open the MITRE ATT&CK Menu" width="85%"/></p>
 
-<p align="center"><img src="images3/screenshot190.png" alt="Update Attacker Tools" width="80%"/></p>
+- MITRE ATT&CK is selected from the left navigation menu.
+- The module loads the ATT&CK matrix inside the dashboard.
+- Techniques will light up as matching events are detected.
 
-> `apt-get update && upgrade` on Kali.
+### 🔹 189. ATT&CK Matrix View
 
-#### 🔹 191. Install CrackMapExec
+<p align="center"><img src="images3/screenshot189.png" alt="ATT&CK Matrix View" width="85%"/></p>
 
-<p align="center"><img src="images3/screenshot191.png" alt="Install CrackMapExec" width="80%"/></p>
+- The ATT&CK matrix is displayed with tactics across the top and techniques below.
+- No techniques are highlighted yet because no attacks have been run.
+- This view will be revisited after the attack simulations.
 
-> SMB enumeration and credential attacks.
+---
 
-#### 🔹 192. Install Hydra
+<a id="phase10"></a>
 
-<p align="center"><img src="images3/screenshot192.png" alt="Install Hydra" width="80%"/></p>
+## ⚔️ Phase 10 — Attack Simulation from Kali
 
-> Brute-force tool.
+<sub>Steps 190–214</sub>
 
-#### 🔹 193. Install python3-impacket
+### 🔹 190. Update Attacker Tools
 
-<p align="center"><img src="images3/screenshot193.png" alt="Install python3-impacket" width="80%"/></p>
+<p align="center"><img src="images3/screenshot190.png" alt="Update Attacker Tools" width="85%"/></p>
 
-> SMB / network protocol tools.
+- On the Kali attacker machine, `apt-get update` and `upgrade` are run.
+- This keeps the operating system and security tools current.
+- Up-to-date tools behave more reliably during the simulated attacks.
 
-#### 🔹 194. Verify Tool Versions
+### 🔹 191. Install CrackMapExec
 
-<p align="center"><img src="images3/screenshot194.png" alt="Verify Tool Versions" width="80%"/></p>
+<p align="center"><img src="images3/screenshot191.png" alt="Install CrackMapExec" width="85%"/></p>
 
-> `cme --version`
+- `sudo apt-get install crackmapexec -y` installs the SMB attack tool.
+- CrackMapExec is used later for enumeration and credential attacks.
+- The terminal confirms the package installation.
 
-#### 🔹 195. Verify Hydra Help Output
+### 🔹 192. Install Hydra
 
-<p align="center"><img src="images3/screenshot195.png" alt="Verify Hydra Help Output" width="80%"/></p>
+<p align="center"><img src="images3/screenshot192.png" alt="Install Hydra" width="85%"/></p>
 
-> `hydra -h | head -5`
+- `sudo apt-get install hydra -y` installs the brute-force tool Hydra.
+- Hydra will be used to simulate password-guessing attacks.
+- Its installation output is shown in the terminal.
 
-#### 🔹 196. Network Reconnaissance Scan
+### 🔹 193. Install python3-impacket
 
-<p align="center"><img src="images3/screenshot196.png" alt="Network Reconnaissance Scan" width="80%"/></p>
+<p align="center"><img src="images3/screenshot193.png" alt="Install python3-impacket" width="85%"/></p>
 
-> `nmap -sn 192.168.10.0/24` — **T1046** Network Service Discovery.
+- `sudo apt-get install python3-impacket -y` is run.
+- Impacket provides additional SMB and network protocol tools.
+- It supports some of the enumeration techniques used later.
 
-#### 🔹 197. Detailed Scan of DC01
+### 🔹 194. Verify Tool Versions
 
-<p align="center"><img src="images3/screenshot197.png" alt="Detailed Scan of DC01" width="80%"/></p>
+<p align="center"><img src="images3/screenshot194.png" alt="Verify Tool Versions" width="85%"/></p>
 
-> `nmap -sV -sC -O 192.168.10.10`
+- `cme --version` is run to confirm CrackMapExec is installed correctly.
+- The version number is printed to the terminal.
+- This confirms the tool is ready for use.
 
-#### 🔹 198. Full Port Scan
+### 🔹 195. Verify Hydra Help Output
 
-<p align="center"><img src="images3/screenshot198.png" alt="Full Port Scan" width="80%"/></p>
+<p align="center"><img src="images3/screenshot195.png" alt="Verify Hydra Help Output" width="85%"/></p>
 
-> `nmap -A -p- 192.168.10.10 --max-retries 2`
+- `hydra -h | head -5` is run to display the start of Hydra's help text.
+- This confirms Hydra was installed and runs correctly.
+- The attacker machine is now fully equipped for Phase 10.
 
-#### 🔹 199. SMB OS Discovery on SRV01
+### 🔹 196. Network Reconnaissance Scan
 
-<p align="center"><img src="images3/screenshot199.png" alt="SMB OS Discovery on SRV01" width="80%"/></p>
+<p align="center"><img src="images3/screenshot196.png" alt="Network Reconnaissance Scan" width="85%"/></p>
 
-> `smb-os-discovery` on ports 139/445.
+- `nmap -sn 192.168.10.0/24` is run from the attacker to discover live hosts.
+- This is a ping sweep that lists every responding machine on the subnet.
+- It corresponds to MITRE technique **T1046**, Network Service Discovery.
 
-#### 🔹 200. Check Wazuh for Scan Alerts
+### 🔹 197. Detailed Scan of DC01
 
-<p align="center"><img src="images3/screenshot200.png" alt="Check Wazuh for Scan Alerts" width="80%"/></p>
+<p align="center"><img src="images3/screenshot197.png" alt="Detailed Scan of DC01" width="85%"/></p>
 
-> Security Events filtered by agent DC01.
+- `nmap -sV -sC -O 192.168.10.10` is run against the domain controller.
+- This reveals open ports, running services, script results and OS guess.
+- The output helps the attacker understand what services DC01 exposes.
 
-#### 🔹 201. SMB Share and User Enumeration
+### 🔹 198. Full Port Scan
 
-<p align="center"><img src="images3/screenshot201.png" alt="SMB Share and User Enumeration" width="80%"/></p>
+<p align="center"><img src="images3/screenshot198.png" alt="Full Port Scan" width="85%"/></p>
 
-> `smb-enum-shares,smb-enum-users` — **T1021.002**.
+- `nmap -A -p- 192.168.10.10 --max-retries 2` scans all 65535 ports on DC01.
+- The -A flag adds OS detection, version detection and script scanning.
+- This is a much more thorough scan than the earlier quick check.
 
-#### 🔹 202. Enumerate Shares on SRV01
+### 🔹 199. SMB OS Discovery on SRV01
 
-<p align="center"><img src="images3/screenshot202.png" alt="Enumerate Shares on SRV01" width="80%"/></p>
+<p align="center"><img src="images3/screenshot199.png" alt="SMB OS Discovery on SRV01" width="85%"/></p>
 
-> FinanceData hidden from anonymous enumeration.
+- `nmap -p 139,445 --script smb-os-discovery 192.168.10.25` targets the SMB ports on SRV01.
+- The script reports OS version and domain information over SMB.
+- This kind of probe is exactly what the Wazuh rules are designed to detect.
 
-#### 🔹 203. CrackMapExec Network Sweep
+### 🔹 200. Check Wazuh for Scan Alerts
 
-<p align="center"><img src="images3/screenshot203.png" alt="CrackMapExec Network Sweep" width="80%"/></p>
+<p align="center"><img src="images3/screenshot200.png" alt="Check Wazuh for Scan Alerts" width="85%"/></p>
 
-> `crackmapexec smb 192.168.10.0/24`
+- The Wazuh dashboard Security Events are filtered by agent DC01.
+- Alerts related to the nmap scans should appear here.
+- This confirms the SIEM detected the reconnaissance activity.
 
-#### 🔹 204. Enumerate Shares with CrackMapExec
+### 🔹 201. SMB Share and User Enumeration
 
-<p align="center"><img src="images3/screenshot204.png" alt="Enumerate Shares with CrackMapExec" width="80%"/></p>
+<p align="center"><img src="images3/screenshot201.png" alt="SMB Share and User Enumeration" width="85%"/></p>
 
-> Access-based enumeration limits what appears.
+- `nmap --script smb-enum-shares,smb-enum-users -p 445` is run against DC01.
+- The script lists available SMB shares and domain user accounts.
+- This technique corresponds to MITRE **T1021.002**, SMB/Windows Admin Shares.
 
-#### 🔹 205. Enumerate Users with CrackMapExec
+### 🔹 202. Enumerate Shares on SRV01
 
-<p align="center"><img src="images3/screenshot205.png" alt="Enumerate Users with CrackMapExec" width="80%"/></p>
+<p align="center"><img src="images3/screenshot202.png" alt="Enumerate Shares on SRV01" width="85%"/></p>
 
-> Simulated user-list building — should alert.
+- The same smb-enum-shares script is run against SRV01 at 192.168.10.25.
+- It checks which shares are visible without authentication.
+- The FinanceData share is expected to be hidden from anonymous enumeration.
 
-#### 🔹 206. Confirm FinanceData Is Protected
+### 🔹 203. CrackMapExec Network Sweep
 
-<p align="center"><img src="images3/screenshot206.png" alt="Confirm FinanceData Is Protected" width="80%"/></p>
+<p align="center"><img src="images3/screenshot203.png" alt="CrackMapExec Network Sweep" width="85%"/></p>
 
-> RBAC + auditing work together.
+- `crackmapexec smb 192.168.10.0/24` is run to identify all SMB hosts on the subnet.
+- CrackMapExec reports the hostname, OS and domain for each responding machine.
+- This gives the attacker a map of the Windows infrastructure.
 
-#### 🔹 207. Prepare the Password List
+### 🔹 204. Enumerate Shares with CrackMapExec
 
-<p align="center"><img src="images3/screenshot207.png" alt="Prepare the Password List" width="80%"/></p>
+<p align="center"><img src="images3/screenshot204.png" alt="Enumerate Shares with CrackMapExec" width="85%"/></p>
 
-> Wordlist for the martin brute-force test.
+- `crackmapexec smb 192.168.10.25 --shares` lists the shares exposed by SRV01.
+- This checks whether FinanceData is visible without valid credentials.
+- The access-based enumeration setting should limit what appears.
 
-#### 🔹 208. Hydra Brute Force Against SMB
+### 🔹 205. Enumerate Users with CrackMapExec
 
-<p align="center"><img src="images3/screenshot208.png" alt="Hydra Brute Force Against SMB" width="80%"/></p>
+<p align="center"><img src="images3/screenshot205.png" alt="Enumerate Users with CrackMapExec" width="85%"/></p>
 
-> `hydra -l martin -P /tmp/passwords.txt smb://192.168.10.10` — **T1110**.
+- `crackmapexec smb 192.168.10.10 --users` attempts to list domain users from DC01.
+- This simulates an attacker trying to build a list of valid account names.
+- Such enumeration attempts should also trigger Wazuh alerts.
 
-#### 🔹 209. CrackMapExec Brute Force
+### 🔹 206. Confirm FinanceData Is Protected
 
-<p align="center"><img src="images3/screenshot209.png" alt="CrackMapExec Brute Force" width="80%"/></p>
+<p align="center"><img src="images3/screenshot206.png" alt="Confirm FinanceData Is Protected" width="85%"/></p>
 
-> Cross-validates Hydra's results.
+- The enumeration results confirm the FinanceData share is not accessible anonymously.
+- SMB enumeration attempts are logged by Sysmon and forwarded to Wazuh.
+- This validates that the RBAC and auditing controls are working together.
 
-#### 🔹 210. Check Event Viewer for Failed Logons
+### 🔹 207. Prepare the Password List
 
-<p align="center"><img src="images3/screenshot210.png" alt="Check Event Viewer for Failed Logons" width="80%"/></p>
+<p align="center"><img src="images3/screenshot207.png" alt="Prepare the Password List" width="85%"/></p>
 
-> Event ID **4625** (failed logon) and **4740** (lockout).
+- A password list file is created on the attacker machine using a heredoc (EOF).
+- This wordlist will be used for the brute-force attack against martin's account.
+- Using a weak, unauthorized account mirrors a realistic attack scenario.
 
-#### 🔹 211. Test Multiple Accounts with One Password
+### 🔹 208. Hydra Brute Force Against SMB
 
-<p align="center"><img src="images3/screenshot211.png" alt="Test Multiple Accounts with One Password" width="80%"/></p>
+<p align="center"><img src="images3/screenshot208.png" alt="Hydra Brute Force Against SMB" width="85%"/></p>
 
-> Password-spraying style test.
+- `hydra -l martin -P /tmp/passwords.txt smb://192.168.10.10` is run.
+- Hydra tries each password in the list against the martin account over SMB.
+- This corresponds to MITRE **T1110**, Brute Force.
 
-#### 🔹 212. Authenticated Share Check
+### 🔹 209. CrackMapExec Brute Force
 
-<p align="center"><img src="images3/screenshot212.png" alt="Authenticated Share Check" width="80%"/></p>
+<p align="center"><img src="images3/screenshot209.png" alt="CrackMapExec Brute Force" width="85%"/></p>
 
-> john's valid credentials reveal FinanceData.
+- `crackmapexec smb 192.168.10.10 -u martin -p /tmp/passwords.txt` attempts the same attack with CrackMapExec.
+- CrackMapExec reports which password attempts succeed or fail.
+- Running two tools cross-validates the brute-force results.
 
-#### 🔹 213. Attempt Administrator Credentials
+### 🔹 210. Check Event Viewer for Failed Logons
 
-<p align="center"><img src="images3/screenshot213.png" alt="Attempt Administrator Credentials" width="80%"/></p>
+<p align="center"><img src="images3/screenshot210.png" alt="Check Event Viewer for Failed Logons" width="85%"/></p>
 
-> Failed guess → strong admin password.
+- On DC01, Event Viewer > Windows Logs > Security is checked for Event ID 4625 and 4740.
+- Event ID 4625 records failed logon attempts and 4740 records account lockouts.
+- These events prove the brute-force attack was captured by Windows auditing.
 
-#### 🔹 214. Check Logged-On Users
+### 🔹 211. Test Multiple Accounts with One Password
 
-<p align="center"><img src="images3/screenshot214.png" alt="Check Logged-On Users" width="80%"/></p>
+<p align="center"><img src="images3/screenshot211.png" alt="Test Multiple Accounts with One Password" width="85%"/></p>
 
-> What an attacker learns with valid creds.
+- `crackmapexec smb 192.168.10.10 -u bob -u john -u martin -p Finance@123` tests several usernames against one password.
+- This simulates a password-spraying style attack across known accounts.
+- Results show which accounts, if any, accept the shared password.
 
-</details>
+### 🔹 212. Authenticated Share Check
 
-<details>
-<summary><b>🚨 Phase 11 — Active Response (Detection → Prevention)</b> &nbsp;·&nbsp; Steps 215–218</summary>
+<p align="center"><img src="images3/screenshot212.png" alt="Authenticated Share Check" width="85%"/></p>
 
-<br>
+- `crackmapexec smb 192.168.10.25 -u john -p Finance@123 --shares` uses john's valid credentials to list shares on SRV01.
+- Because john is authorized, FinanceData should now appear in the results.
+- This contrasts with the earlier anonymous enumeration attempt.
 
-#### 🔹 215. Open ossec.conf for Active Response
+### 🔹 213. Attempt Administrator Credentials
 
-<p align="center"><img src="images3/screenshot215.png" alt="Open ossec.conf for Active Response" width="80%"/></p>
+<p align="center"><img src="images3/screenshot213.png" alt="Attempt Administrator Credentials" width="85%"/></p>
 
-> `/var/ossec/etc/ossec.conf` on the manager.
+- `crackmapexec smb 192.168.10.10 -u Administrator -p Admin@SRV01 --shares` tries a guessed administrator password.
+- This checks whether weak or reused admin credentials would expose the domain controller.
+- A failed attempt shows the account is protected by a stronger password.
 
-#### 🔹 216. Add the Active Response Configuration
+### 🔹 214. Check Logged-On Users
 
-<p align="center"><img src="images3/screenshot216.png" alt="Add the Active Response Configuration" width="80%"/></p>
+<p align="center"><img src="images3/screenshot214.png" alt="Check Logged-On Users" width="85%"/></p>
 
-> Block attacking IP on high-severity rules.
+- `crackmapexec smb 192.168.10.10 -u Administrator -p YourAdminPass --loggedon-users` is run with valid administrator credentials.
+- This lists which users are currently logged on to DC01.
+- It demonstrates what an attacker could learn after obtaining valid credentials.
 
-#### 🔹 217. Restart the Manager to Apply Active Response
+---
 
-<p align="center"><img src="images3/screenshot217.png" alt="Restart the Manager to Apply Active Response" width="80%"/></p>
+<a id="phase11"></a>
 
-> `sudo systemctl restart wazuh-manager`
+## 🚨 Phase 11 — Active Response (Detection → Prevention)
 
-#### 🔹 218. Verify Active Response Is Configured
+<sub>Steps 215–218</sub>
 
-<p align="center"><img src="images3/screenshot218.png" alt="Verify Active Response Is Configured" width="80%"/></p>
+### 🔹 215. Open ossec.conf for Active Response
 
-> `grep -A5 active-response ossec.conf`
+<p align="center"><img src="images3/screenshot215.png" alt="Open ossec.conf for Active Response" width="85%"/></p>
 
-</details>
+- `sudo nano /var/ossec/etc/ossec.conf` is opened on the Wazuh manager.
+- The active-response section will be added to automatically react to attacks.
+- This moves the lab from detection to automated prevention.
+
+### 🔹 216. Add the Active Response Configuration
+
+<p align="center"><img src="images3/screenshot216.png" alt="Add the Active Response Configuration" width="85%"/></p>
+
+- The active-response block is inserted before the closing global tag.
+- It defines which command runs and which rule levels trigger it.
+- Typically this blocks the attacking IP address automatically.
+
+### 🔹 217. Restart the Manager to Apply Active Response
+
+<p align="center"><img src="images3/screenshot217.png" alt="Restart the Manager to Apply Active Response" width="85%"/></p>
+
+- `sudo systemctl restart wazuh-manager` reloads the configuration.
+- The active response module is now enabled.
+- Future high-severity alerts, such as repeated brute-force attempts, will trigger an automatic block.
+
+### 🔹 218. Verify Active Response Is Configured
+
+<p align="center"><img src="images3/screenshot218.png" alt="Verify Active Response Is Configured" width="85%"/></p>
+
+- `sudo grep -A5 active-response /var/ossec/etc/ossec.conf` displays the saved configuration block.
+- This confirms the settings were written correctly to the file.
+- With active response enabled, the Module 5 lab setup is complete.
+
+---
 
 ---
 
